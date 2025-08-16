@@ -1,0 +1,225 @@
+/* =========================
+   Design Tokens
+   ========================= */
+:root {
+  --bg: #f7fafc;
+  --card: #fff;
+  --text: #1a202c;
+  --primary: #2563eb;
+  --ok: #10b981;
+  --err: #ef4444;
+}
+
+/* =========================
+   Base
+   ========================= */
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #eef2ff, #f8fafc);
+  color: var(--text);
+  font-family: system-ui, Segoe UI, Roboto;
+  font-size: 16px; /* ✅ basisgrootte */
+}
+
+/* =========================
+   Layout
+   ========================= */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid.cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* =========================
+   Components
+   ========================= */
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn.secondary {
+  background: #e5e7eb;
+}
+
+.pill {
+  display: inline-flex;
+  gap: 8px;
+  background: #eef2ff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #f1f5f9;
+  height: 64px;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.tile.ok {
+  background: #ecfdf5;
+  outline: 3px solid rgba(16, 185, 129, 0.35);
+}
+
+.tile.err {
+  background: #fef2f2;
+  outline: 3px solid rgba(239, 68, 68, 0.35);
+}
+
+.trophy-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trophy-item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px dashed #e5e7eb;
+  transition: 0.3s;
+}
+
+.trophy-item.locked {
+  opacity: 0.45;
+}
+
+.trophy-item.flash {
+  transform: scale(1.06);
+}
+
+/* =========================
+   Utilities
+   ========================= */
+.hidden {
+  display: none;
+}
+
+.emoji-lg {
+  font-size: 8rem; /* ✅ grote emoji’s */
+  line-height: 1.2;
+}
+
+/* normale woordknoppen */
+.btn.word-option {
+  font-size: 1rem;      /* ca. 16px */
+  padding: 14px 16px;
+}
+
+
+/* grote emoji boven in het spel */
+.big,
+#emoji-symbol {
+  font-size: 6rem;      /* maak gerust 7–8rem als je nog groter wilt */
+  line-height: 1.1;
+  font-weight: 900;
+  display: block;
+  text-align: center;
+}
+
+
+
+/* =========================
+   Effects
+   ========================= */
+.confetti {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.confetti i {
+  position: absolute;
+  font-style: normal;
+  animation: fall 2200ms ease-out forwards;
+  opacity: 0.95;
+  font-size: 28px;
+}
+
+.sticker-float {
+  position: fixed;
+  left: 50%;
+  top: 20%;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.sticker-float.show {
+  opacity: 1;
+  animation: spin 2s ease-in-out;
+}
+
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.75);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 9999;
+}
+
+.pause-overlay.show {
+  display: flex;
+}
+
+/* =========================
+   Animations
+   ========================= */
+@keyframes fall {
+  to {
+    transform: translateY(60vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(720deg);
+  }
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Leren Lezen – Modular</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app">
+    <div class="card" id="screen-home">
+      <h1>🎈 Leren Lezen</h1>
+      <div class="toolbar">
+        <span class="pill">⭐ <span id="stars">0</span></span>
+        <span class="pill">🔗 <span id="streak">0</span></span>
+        <span class="pill">🎁 Nog <span id="countdown-home">0</span></span>
+        <span class="pill">🔊 <button id="btn-audio">AAN</button></span>
+      </div>
+      <div class="grid cols-1">
+        <button class="btn primary" id="nav-emoji">😊 Emoji & Woord</button>
+        <button class="btn secondary" id="nav-cvc">🧱 CVC</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="screen-emoji"></div>
+    <div class="card hidden" id="screen-cvc"></div>
+
+    <div class="card trophy" id="trophy-card">
+      <h2>🏆 Prijzenkast</h2>
+      <div id="trophy-grid" class="trophy-grid"></div>
+      <div class="muted" id="sticker-next"></div>
+    </div>
+  </div>
+
+  <div id="confetti" class="confetti"></div>
+  <div id="sticker-float" class="sticker-float">🎉</div>
+  <div id="pause-overlay" class="pause-overlay"><div>
+    <div style="font-size:2rem">⏸️ Pauze</div>
+    <p>Even rusten… Je kunt over <b id="pause-remaining">15:00</b> weer verder spelen.</p>
+  </div></div>
+
+  <script type="module" src="../src/main.js"></script>
+</body>
+</html>
