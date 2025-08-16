@@ -1,5 +1,5 @@
 import { $, el } from '../ui/dom.js';
-import { state, setStreak, setFirstTry, pushRecent, resetSession } from '../core/state.js';
+import { state, setStreak, setFirstTry, pushRecent, resetSession, subscribe } from '../core/state.js';
 import { NO_REPEAT_WINDOW } from '../constants.js';
 import { pick } from '../core/sampler.js';
 import { checkAndAward, nextThreshold, incrementStarsWithAntiGuess } from '../core/rewards.js';
@@ -16,8 +16,8 @@ export function mountEmoji(){
   const toolbar = el('div',{className:'toolbar'},
     el('button',{className:'btn secondary', id:'emoji-back', textContent:'← Home'}),
     el('div',{className:'pill', textContent:'Kies het juiste woord'}),
-    el('div',{className:'pill'}, '⭐ ', el('span',{id:'stars-emoji', textContent:state.stars})),
-    el('div',{className:'pill'}, '🔗 ', el('span',{id:'streak-emoji', textContent:state.streak})),
+    el('div',{className:'pill'}, '⭐ ', el('span',{id:'stars-emoji'})),
+    el('div',{className:'pill'}, '🔗 ', el('span',{id:'streak-emoji'})),
     el('div',{className:'pill'}, '🎁 Nog ', el('span',{id:'countdown-emoji'}),' goed'),
     el('button',{className:'btn secondary', id:'emoji-reset', textContent:'🔄 Reset'})
   );
@@ -31,11 +31,8 @@ export function mountEmoji(){
 
   // 🔄 Reset: alles terug naar 0 + stickers leeg + nieuwe ronde
   $('#emoji-reset').onclick = ()=>{
-    resetSession({ resetStickers:true });   // ⭐, streak, recentWords, stickers + localStorage
-    // lokale tellers meteen updaten
-    $('#stars-emoji').textContent = state.stars;
-    $('#streak-emoji').textContent = state.streak;
-    updateCountdown();
+    resetSession({ resetStickers:true });
+    syncToolbar();
     nextRound();
   };
 
@@ -43,6 +40,17 @@ export function mountEmoji(){
     const nxt = nextThreshold(state.stars);
     $('#countdown-emoji').textContent = nxt ? (nxt.threshold - state.stars) : 0;
   }
+
+  function syncToolbar(){
+    const sEl = $('#stars-emoji');
+    const tEl = $('#streak-emoji');
+    if (sEl) sEl.textContent = state.stars;
+    if (tEl) tEl.textContent = state.streak;
+    updateCountdown();
+  }
+
+  // live meebewegen met state-veranderingen (stars/streak)
+  const unsubscribe = subscribe(syncToolbar);
 
   const isEmojiChar = (s) => /^[\u2190-\u2BFF\u1F300-\u1F9FF]$/.test(s);
 
@@ -94,8 +102,11 @@ export function mountEmoji(){
       options.append(b);
     });
 
-    updateCountdown();
+    syncToolbar();
   }
 
   nextRound();
+
+  // optioneel: netjes unsubscriben als je een unmount-systeem toevoegt
+  // return () => unsubscribe();
 }

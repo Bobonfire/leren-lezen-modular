@@ -1,5 +1,5 @@
 import { $, el } from '../ui/dom.js';
-import { state, setStreak, setFirstTry, pushRecent } from '../core/state.js';
+import { state, setStreak, setFirstTry, pushRecent, subscribe } from '../core/state.js';
 import { NO_REPEAT_WINDOW } from '../constants.js';
 import { pick } from '../core/sampler.js';
 import { checkAndAward, nextThreshold, incrementStarsWithAntiGuess } from '../core/rewards.js';
@@ -14,8 +14,8 @@ export function mountCVC(){
   const toolbar = el('div',{className:'toolbar'},
     el('button',{className:'btn secondary', id:'cvc-back', textContent:'← Home'}),
     el('div',{className:'pill', textContent:'Bouw het woord'}),
-    el('div',{className:'pill'}, '⭐ ', el('span',{id:'stars-cvc', textContent:state.stars})),
-    el('div',{className:'pill'}, '🔗 ', el('span',{id:'streak-cvc', textContent:state.streak})),
+    el('div',{className:'pill'}, '⭐ ', el('span',{id:'stars-cvc'})),
+    el('div',{className:'pill'}, '🔗 ', el('span',{id:'streak-cvc'})),
     el('div',{className:'pill'}, '🎁 Nog ', el('span',{id:'countdown-cvc'}),' goed')
   );
   const hint = el('div',{className:'center muted big'},'🖼️ (plaatje) – ', el('span',{id:'cvc-hint'}));
@@ -29,6 +29,17 @@ export function mountCVC(){
     const nxt = nextThreshold(state.stars);
     $('#countdown-cvc').textContent = nxt ? (nxt.threshold - state.stars) : 0;
   }
+
+  function syncToolbar(){
+    const sEl = $('#stars-cvc');
+    const tEl = $('#streak-cvc');
+    if (sEl) sEl.textContent = state.stars;
+    if (tEl) tEl.textContent = state.streak;
+    updateCountdown();
+  }
+
+  // live updates
+  const unsubscribe = subscribe(syncToolbar);
 
   let target = null, filled = [];
 
@@ -51,7 +62,7 @@ export function mountCVC(){
     $('#cvc-hint').textContent = target;
     slots.innerHTML='';
     for(let i=0;i<target.length;i++) slots.append(el('div',{className:'slot',textContent:'_',dataset:{index:i}}));
-    renderGrid(); updateCountdown();
+    renderGrid(); syncToolbar();
   }
 
   function placeLetter(ch){
@@ -73,8 +84,10 @@ export function mountCVC(){
       setFirstTry(false); setStreak(0);
       setTimeout(()=>{ slot.classList.remove('err'); slot.textContent='_'; }, 450);
     }
-    updateCountdown();
+    syncToolbar();
   }
 
   newRound();
+
+  // optioneel: return () => unsubscribe();
 }
