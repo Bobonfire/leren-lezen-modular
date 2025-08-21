@@ -47,7 +47,7 @@ export const EMOJI_WORDS = [
   { emoji: '🧃', word: 'sap' },
   { emoji: '🍕', word: 'pizza' },
   { emoji: '🌭', word: 'hotdog' },
-  { emoji: '🍔', word: 'burger' },
+  { emoji: '🍔', word: 'hamburger' },
   { emoji: '🍟', word: 'friet' },
   { emoji: '🌮', word: 'taco' },
   { emoji: '🥪', word: 'boterham' },
