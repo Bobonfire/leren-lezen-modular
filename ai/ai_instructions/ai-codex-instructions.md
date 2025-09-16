@@ -6,7 +6,6 @@
 ---
 
 ## Quick Modes (pick one)
-
 - **Coffee mode** - temporary auto-approve for safe local work
 - **Feature mode** – plan → confirm → patch + tests.
 - **Refactor mode** – _no behavior change_; keep API stable; **diff only**.
