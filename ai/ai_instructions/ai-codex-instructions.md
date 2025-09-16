@@ -7,6 +7,7 @@
 
 ## Quick Modes (pick one)
 
+- **Coffee mode** - temporary auto-approve for safe local work
 - **Feature mode** – plan → confirm → patch + tests.
 - **Refactor mode** – _no behavior change_; keep API stable; **diff only**.
 - **Explain mode** – walkthrough in bullets; **no code** unless I say “apply.”
@@ -17,7 +18,6 @@
 - **Accessibility sweep** – check keyboard focus, labels, contrast; propose diffs only.
 - **Perf touch** – identify hot loops/DOM churn; suggest minimal, measurable tweaks.
 - **Coffee mode** - temporary auto-approve for safe local work
-
 ---
 
 ## Behavior
@@ -35,7 +35,7 @@ Open the relevant tabs (target files, `package.json`, `.eslintrc.json`, `.pretti
 
 ## File Access Guardrail
 
-- Never invent or run shell commands (cat, Get-Content, etc.) to read files.
+
 - Assume I’ll want to give you access to the needed files: ask like this:
   - “Please grant permission to open src/ui/summary.js and src/core/calc.js so I can read them.”
   - If multiple files are needed, first list them with a one-line rationale each, then WAIT for me to confirm.
@@ -73,10 +73,11 @@ Open the relevant tabs (target files, `package.json`, `.eslintrc.json`, `.pretti
    - `git restore`, `git checkout -- <paths>` (to revert local changes)
    - approval to run powershell.exe scripts
 4. **Local scripts via VS Code tasks**
-
-- Allowed if they’re defined in `.vscode/tasks.json`
-- Must be invoked with `-ExecutionPolicy Bypass -NoProfile`
-- No network calls inside scripts
+   - Allowed if they’re defined in `.vscode/tasks.json`
+   - Must be invoked with `-ExecutionPolicy Bypass -NoProfile`
+   - No network calls inside scripts
+5. Powershell scripts:
+   -  Allowed to run shell command 'Get-Content' to read files
 
 ### Still **require explicit approval** (even in Coffee Mode):
 
