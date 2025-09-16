@@ -1,2 +1,27 @@
-export const CVC_LETTERS = ['a','e','i','o','u','k','t','m','n','s','p','r','l','d','b','v','z'];
-export const CVC_WORDS   = ['kat','pet','pin','man','bus','sok','rat','rok','bed','lip','pan','vis','zon','kip','lap','dop','nul','ton','pen','som','tak','rem','bel'];
+﻿export const CVC_LETTERS = ['a','e','i','o','u','k','t','m','n','s','p','r','l','d','b','v','z'];
+export const CVC_WORDS = [
+  { word: 'kat', clue: '\u{1F431}' },
+  { word: 'pet', clue: '\u{1F452}' },
+  { word: 'pin', clue: '\u{1F4CC}' },
+  { word: 'man', clue: '\u{1F468}' },
+  { word: 'bus', clue: '\u{1F68C}' },
+  { word: 'sok', clue: '\u{1F9E6}' },
+  { word: 'rat', clue: '\u{1F400}' },
+  { word: 'rok', clue: '\u{1F457}' },
+  { word: 'bed', clue: '\u{1F6CF}' },
+  { word: 'lip', clue: '\u{1F444}' },
+  { word: 'pan', clue: '\u{1F373}' },
+  { word: 'vis', clue: '\u{1F41F}' },
+  { word: 'zon', clue: '\u2600' },
+  { word: 'kip', clue: '\u{1F414}' },
+  { word: 'lap', clue: '\u{1F9FD}' },
+  { word: 'dop', clue: '\u{1F9F4}' },
+  { word: 'nul', clue: '\u24EA' },
+  { word: 'ton', clue: '\u{1F6E2}' },
+  { word: 'pen', clue: '\u{1F58A}' },
+  { word: 'som', clue: '\u2795' },
+  { word: 'tak', clue: '\u{1F33F}' },
+  { word: 'rem', clue: '\u{1F6D1}' },
+  { word: 'bel', clue: '\u{1F514}' },
+];
+

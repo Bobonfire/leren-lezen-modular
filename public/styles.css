@@ -100,6 +100,55 @@ body {
   outline: 3px solid rgba(239, 68, 68, 0.35);
 }
 
+.slots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.slot {
+  width: 70px;
+  height: 72px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  transition: background 0.2s, color 0.2s;
+}
+
+.slot.ok {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.slot.err {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.cvc-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cvc-clue-icon {
+  opacity: 0.7;
+  font-size: 2.5rem;
+}
+
+.cvc-clue {
+  display: inline-flex;
+  align-items: center;
+  font-size: 4.5rem;
+  line-height: 1;
+}
 .trophy-grid {
   display: flex;
   flex-wrap: wrap;
@@ -223,3 +272,5 @@ body {
     transform: translate(-50%, -50%) rotate(720deg);
   }
 }
+
+
