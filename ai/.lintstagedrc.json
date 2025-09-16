@@ -1,0 +1,6 @@
+{
+  "*.{js,css,html,json,md}": ["prettier --write"],
+  "src/**/*.js": ["eslint --fix"],
+  "src/styles/**/*.css": ["stylelint --fix"],
+  "py/**/*.py": ["ruff --fix", "black"]
+}

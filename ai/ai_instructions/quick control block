@@ -1,0 +1,7 @@
+AI CONTROL (read first)
+Mode: <Feature | Refactor | Explain | Bugfix | Test-First>
+Output: Small=unified diff only; Multi-file=list files+rationale then WAIT.
+VCS safety: Never push unless I type ALLOW PUSH. Local-first in feature branch.
+Project norms: Vite+vanilla JS; CSS in files; math in src/core/calc.js; EUR; SWR 4.5%; ±1pp.
+Accessibility: keyboard focus; sticky header; numeric cells right-aligned.
+If vague: rewrite as ≤8-bullet spec (context, AC, constraints, output, risks, tests, perf, i18n) → ask “Proceed?”

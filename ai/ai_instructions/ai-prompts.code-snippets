@@ -1,0 +1,113 @@
+{
+  "AI: feature": {
+    "prefix": "ai-feature",
+    "description": "Add a feature with clear acceptance criteria and output format",
+    "body": [
+      "Task: ${1:Add a feature}.",
+      "",
+      "Context:",
+      "- Vanilla JS (ES modules) + Vite; HTML/CSS; no new dependencies.",
+      "- Styles must go in src/styles/main.css (no inline styles).",
+      "",
+      "Acceptance:",
+      "- ${2:Describe the user-visible behavior}.",
+      "- ${3:Any API/UX constraints}.",
+      "",
+      "Output:",
+      "- ${4:Unified diff only OR full updated files by path, no prose}.",
+      "",
+      "Edge cases: ${5:List a couple}.",
+      ""
+    ]
+  },
+  "AI: patch (diff only)": {
+    "prefix": "ai-patch",
+    "description": "Small change \u2192 unified diff only",
+    "body": [
+      "Change only what is necessary to ${1:describe change}.",
+      "",
+      "Constraints:",
+      "- Keep public API stable; no new deps; no inline styles.",
+      "- Only touch ${2:file or area}.",
+      "",
+      "Output: unified diff only."
+    ]
+  },
+  "AI: bugfix": {
+    "prefix": "ai-bugfix",
+    "description": "Bugfix with root cause + minimal patch",
+    "body": [
+      "Bug: ${1:symptom}.",
+      "",
+      "Repro:",
+      "1) ${2:step}",
+      "2) ${3:step}",
+      "",
+      "Please:",
+      "- Identify root cause in \u22642 lines.",
+      "- Provide the smallest possible patch (unified diff).",
+      "- Mention a quick check I can run to verify."
+    ]
+  },
+  "AI: refactor": {
+    "prefix": "ai-refactor",
+    "description": "Refactor with no behavior change",
+    "body": [
+      "Goal: Refactor ${1:area} without changing behavior.",
+      "",
+      "Rules:",
+      "- Keep API stable and tests passing.",
+      "- Improve readability; remove dead code; smaller functions.",
+      "- No new dependencies; styles remain in CSS files.",
+      "",
+      "Output: unified diff only."
+    ]
+  },
+  "AI: explain": {
+    "prefix": "ai-explain",
+    "description": "Explain code briefly",
+    "body": [
+      "Explain what this file/selection does in 5 bullets.",
+      "Point out risky parts I should unit test."
+    ]
+  },
+  "AI: plan": {
+    "prefix": "ai-plan",
+    "description": "Make a plan (list files, wait)",
+    "body": [
+      "List the files you\u2019ll change to ${1:goal} and give a one-line rationale for each.",
+      "WAIT for my OK before producing code."
+    ]
+  },
+  "AI: review": {
+    "prefix": "ai-review",
+    "description": "Request a focused code review",
+    "body": [
+      "Review this code for correctness and readability.",
+      "Focus on: ${1:focus area}.",
+      "Return a checklist of issues and a minimal diff to address them."
+    ]
+  },
+  "AI: chart": {
+    "prefix": "ai-chart",
+    "description": "SVG chart prompt tailored to this project",
+    "body": [
+      "Implement a responsive SVG line chart for our FIRE projection.",
+      "",
+      "Context:",
+      "- renderChart(container, baseRows, optRows, pessRows); row: { year, endValue }.",
+      "- Container: <div id=\"chart\" class=\"card chart-card\"></div>.",
+      "- CSS in src/styles/main.css; no inline styles; no external chart libs.",
+      "",
+      "Acceptance:",
+      "- Three series (Base/Opt/Pess) with legend toggle.",
+      "- X: years; Y: endValue; ~6\u20138 ticks; thousands separators; no \u20ac on ticks.",
+      "- Tooltip on hover (year + formatted values).",
+      "- ResizeObserver; re-render cleanly when called again.",
+      "",
+      "Output:",
+      "- Full contents of src/ui/chart.js and CSS to append to src/styles/main.css.",
+      "- No explanations, only code blocks."
+    ]
+  }
+}
