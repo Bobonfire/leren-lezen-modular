@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+exclude = "\n/(\.venv|venv|build|dist|node_modules)/\n"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E","F","I","B"]
+ignore = []
+exclude = [".venv","venv","build","dist","node_modules"]

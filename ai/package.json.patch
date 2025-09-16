@@ -1,0 +1,37 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@
+ {
+   "name": "fire-calculator",
+   "private": true,
+   "type": "module",
+   "scripts": {
++    "format": "prettier -w . && if [ -d py ]; then black py; fi",
++    "format:check": "prettier -c . && if [ -d py ]; then black --check py; fi",
++    "lint:js": "eslint . --ext .js",
++    "lint:css": "stylelint \"src/**/*.css\"",
++    "lint:html": "htmlhint \"**/*.html\" -c .htmlhintrc",
++    "lint:py": "ruff check py",
++    "lint": "npm-run-all -s lint:js lint:css lint:html lint:py",
++    "prepare": "husky install",
++    "precommit": "lint-staged"
+   },
++  "devDependencies": {
++    "eslint": "^9.0.0",
++    "eslint-plugin-import": "^2.29.0",
++    "htmlhint": "^1.1.4",
++    "husky": "^9.0.0",
++    "lint-staged": "^15.0.0",
++    "npm-run-all": "^4.1.5",
++    "prettier": "^3.3.0",
++    "stylelint": "^16.0.0",
++    "stylelint-config-standard": "^36.0.0"
++  },
++  "lint-staged": {
++    "*.{js,css,html,json,md}": ["prettier --write"],
++    "src/**/*.js": ["eslint --fix"],
++    "src/styles/**/*.css": ["stylelint --fix"],
++    "py/**/*.py": ["ruff --fix", "black"]
++  }
+ }
