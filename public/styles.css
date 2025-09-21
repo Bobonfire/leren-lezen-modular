@@ -43,6 +43,11 @@ body {
   grid-template-columns: repeat(2, 1fr);
 }
 
+/* letterrooster voor CVC spel */
+.grid.cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 /* =========================
    Components
    ========================= */
@@ -86,6 +91,7 @@ body {
   border-radius: 14px;
   background: #f1f5f9;
   height: 64px;
+  width: 100%;
   font-size: 1.8rem;
   font-weight: 800;
 }

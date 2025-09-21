@@ -28,7 +28,7 @@ function updateHomeBar(){
   const nxt = nextThreshold(state.stars);
   setText('#countdown-home', nxt ? (nxt.threshold - state.stars) : 0);
 
-  // “Nog X tot …” tekst onder prijzenkast
+  // Nog X tot ... tekst onder prijzenkast
   const txt = nxt
     ? `Nog ${nxt.threshold - state.stars} tot de volgende sticker (${nxt.sticker})`
     : 'Alle stickers verdiend! 🎉';
@@ -38,7 +38,7 @@ function updateHomeBar(){
   renderTrophyCase(state.stickers);
 }
 
-// Subscribe once so Home always reflects latest state (even terwijl je in een mode speelt)
+// Subscribe once so Home always reflects latest state (ook tijdens spel)
 subscribe(updateHomeBar);
 
 /* ----------------------------
@@ -56,14 +56,14 @@ if (btnAudio){
 }
 
 /* ----------------------------
-   Navigatie → Emoji & CVC
+   Navigatie — Emoji & CVC
    (start steeds met een frisse sessie)
 ---------------------------- */
 const goEmoji = () => {
   resetSession({ resetStickers: true }); // nieuwe sessie (0 sterren, 0 streak, prijzenkast leeg)
   history.pushState({ page: 'emoji' }, '');
   showScreen('#screen-emoji');
-  mountEmoji(); // emoji mode UI zorgt zelf voor z’n eigen counters
+  mountEmoji(); // emoji mode UI zorgt zelf voor z'n eigen counters
 };
 const goCVC = () => {
   resetSession({ resetStickers: true });
@@ -92,3 +92,4 @@ window.onpopstate = () => {
 ---------------------------- */
 updateHomeBar();
 showScreen('#screen-home');
+
