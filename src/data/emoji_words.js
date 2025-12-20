@@ -46,13 +46,12 @@ export const EMOJI_WORDS = [
   { emoji: '🥛', word: 'melk' },
   { emoji: '🧃', word: 'sap' },
   { emoji: '🍕', word: 'pizza' },
-  { emoji: '🌭', word: 'hotdog' },
+  { emoji: '🌭', word: 'worstenbroodje' },
   { emoji: '🍔', word: 'hamburger' },
-  { emoji: '🍟', word: 'friet' },
-  { emoji: '🌮', word: 'taco' },
+  { emoji: '🍟', word: 'patat' },
+  { emoji: '🌮', word: 'wrap' },
   { emoji: '🥪', word: 'boterham' },
   { emoji: '🍝', word: 'pasta' },
-  { emoji: '🍣', word: 'sushi' },
   { emoji: '🍦', word: 'ijs' },
   { emoji: '🍰', word: 'taart' },
   { emoji: '🍪', word: 'koek' },
@@ -150,8 +149,7 @@ export const EMOJI_WORDS = [
   { emoji: '📱', word: 'telefoon' },
   { emoji: '💻', word: 'laptop' },
   { emoji: '🖥️', word: 'computer' },
-  { emoji: '🎥', word: 'camera' },
   { emoji: '📺', word: 'tv' },
   { emoji: '🔑', word: 'sleutel' },
-  { emoji: '🛒', word: 'kar' }
+  { emoji: '🛒', word: 'winkelwage' }
 ];
