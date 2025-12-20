@@ -9,6 +9,93 @@ import { showPauseOverlay } from '../ui/overlay.js';
 import { CLOCK_HOURS } from '../data/clock_hours.js';
 import { animateStickerToTrophy } from '../ui/trophy.js';
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs = {}){
+  const node = document.createElementNS(SVG_NS, tag);
+  Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+  return node;
+}
+
+function pointOnCircle(cx, cy, r, deg){
+  const rad = (Math.PI / 180) * deg;
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad)
+  };
+}
+
+function buildClockSvg(hour){
+  const size = 200;
+  const cx = size / 2;
+  const cy = size / 2;
+  const faceR = 90;
+  const svg = svgEl('svg', {
+    viewBox: `0 0 ${size} ${size}`,
+    class: 'clock-svg',
+    role: 'img',
+    'aria-label': `Klok: ${hour} uur`
+  });
+
+  const face = svgEl('circle', { cx, cy, r: faceR, class: 'clock-face-circle' });
+
+  const ticks = svgEl('g', { class: 'clock-ticks' });
+  for(let i = 0; i < 60; i++){
+    const isHour = i % 5 === 0;
+    const angle = (i * 6) - 90;
+    const outer = faceR;
+    const inner = isHour ? faceR - 12 : faceR - 6;
+    const start = pointOnCircle(cx, cy, inner, angle);
+    const end = pointOnCircle(cx, cy, outer, angle);
+    ticks.append(svgEl('line', {
+      x1: start.x,
+      y1: start.y,
+      x2: end.x,
+      y2: end.y,
+      class: isHour ? 'clock-tick clock-tick-hour' : 'clock-tick'
+    }));
+  }
+
+  const numbers = svgEl('g', { class: 'clock-numbers' });
+  for(let n = 1; n <= 12; n++){
+    const angle = (n * 30) - 90;
+    const pos = pointOnCircle(cx, cy, 68, angle);
+    const t = svgEl('text', {
+      x: pos.x,
+      y: pos.y,
+      class: 'clock-number',
+      'text-anchor': 'middle',
+      'dominant-baseline': 'middle'
+    });
+    t.textContent = String(n);
+    numbers.append(t);
+  }
+
+  const minuteAngle = -90;
+  const hourAngle = ((hour % 12) * 30) - 90;
+  const minuteEnd = pointOnCircle(cx, cy, 72, minuteAngle);
+  const hourEnd = pointOnCircle(cx, cy, 52, hourAngle);
+
+  const hourHand = svgEl('line', {
+    x1: cx,
+    y1: cy,
+    x2: hourEnd.x,
+    y2: hourEnd.y,
+    class: 'clock-hand clock-hand-hour'
+  });
+  const minuteHand = svgEl('line', {
+    x1: cx,
+    y1: cy,
+    x2: minuteEnd.x,
+    y2: minuteEnd.y,
+    class: 'clock-hand clock-hand-minute'
+  });
+  const center = svgEl('circle', { cx, cy, r: 4, class: 'clock-center' });
+
+  svg.append(face, ticks, numbers, hourHand, minuteHand, center);
+  return svg;
+}
+
 export function mountClock(){
   const root = $('#screen-clock');
   root.innerHTML = '';
@@ -22,11 +109,11 @@ export function mountClock(){
     el('button',{className:'btn secondary', id:'clock-reset', textContent:'\u{1F504} Reset'})
   );
 
-  const symbol = el('div',{className:'clock-symbol', id:'clock-symbol'},'\u{1F550}');
+  const clockFace = el('div',{className:'clock-face', id:'clock-face'});
   const helper = el('div',{className:'center muted', textContent:'Kies de juiste tijd.'});
   const options = el('div',{id:'clock-options', className:'grid cols-2'});
-  const feedback = el('div',{id:'clock-feedback', className:'center muted', style:'margin-top:12px'});
-  root.append(toolbar, symbol, helper, options, feedback);
+  const feedback = el('div',{id:'clock-feedback', className:'center muted clock-feedback'});
+  root.append(toolbar, clockFace, helper, options, feedback);
 
   $('#clock-back').onclick = ()=> history.back();
 
@@ -55,11 +142,16 @@ export function mountClock(){
   let wrongAttempts = 0;
   let correctButton = null;
 
+  function renderClock(hour){
+    clockFace.textContent = '';
+    clockFace.append(buildClockSvg(hour));
+  }
+
   function nextRound(){
     setFirstTry(true);
     wrongAttempts = 0;
     current = pick(CLOCK_HOURS, state.recentWords, 'label');
-    $('#clock-symbol').textContent = current.emoji;
+    renderClock(current.hour);
 
     feedback.textContent = '';
     options.innerHTML = '';

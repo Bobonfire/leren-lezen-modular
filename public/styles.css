@@ -151,12 +151,59 @@ body {
   line-height: 1;
 }
 
-.clock-symbol {
-  font-size: 6.5rem;
-  font-weight: 900;
-  line-height: 1.1;
-  margin: 12px 0;
-  text-align: center;
+.clock-face {
+  width: clamp(160px, 45vw, 240px);
+  aspect-ratio: 1 / 1;
+  margin: 12px auto;
+}
+
+.clock-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.clock-face-circle {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 4;
+}
+
+.clock-tick {
+  stroke: #111;
+  stroke-width: 1;
+}
+
+.clock-tick-hour {
+  stroke-width: 2;
+}
+
+.clock-number {
+  fill: #111;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: system-ui, Segoe UI, Roboto;
+}
+
+.clock-hand {
+  stroke: #111;
+  stroke-linecap: round;
+}
+
+.clock-hand-hour {
+  stroke-width: 6;
+}
+
+.clock-hand-minute {
+  stroke-width: 3;
+}
+
+.clock-center {
+  fill: #111;
+}
+
+.clock-feedback {
+  margin-top: 12px;
 }
 
 .math-sum {

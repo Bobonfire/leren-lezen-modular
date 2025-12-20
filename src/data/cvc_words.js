@@ -7,7 +7,7 @@ export const CVC_WORDS = [
   { word: 'bus', clue: '\u{1F68C}' },
   { word: 'sok', clue: '\u{1F9E6}' },
   { word: 'rat', clue: '\u{1F400}' },
-  { word: 'rok', clue: '\u{1F457}' },
+  //{ word: 'jurk', clue: '\u{1F457}' },
   { word: 'bed', clue: '\u{1F6CF}' },
   { word: 'lip', clue: '\u{1F444}' },
   { word: 'pan', clue: '\u{1F373}' },
