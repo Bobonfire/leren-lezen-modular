@@ -21,7 +21,6 @@ export const CVC_WORDS = [
   { word: 'pen', clue: '\u{1F58A}' },
   { word: 'som', clue: '\u2795' },
   { word: 'tak', clue: '\u{1F33F}' },
-  { word: 'rem', clue: '\u{1F6D1}' },
   { word: 'bel', clue: '\u{1F514}' },
 ];
 

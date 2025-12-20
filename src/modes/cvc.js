@@ -22,7 +22,6 @@ export function mountCVC(){
   );
 
   const hint = el('div',{className:'center big cvc-hint'},
-    el('span',{className:'cvc-clue-icon'},'\u{1F5BC}'),
     el('span',{id:'cvc-clue', className:'cvc-clue'}));
   const helper = el('div',{className:'center muted', textContent:'Schrijf het woord met de letters.'});
   const slots = el('div',{id:'slots', className:'slots'});

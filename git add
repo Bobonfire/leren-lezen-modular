@@ -1,0 +1,42 @@
+warning: in the working copy of 'public/styles.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/cvc.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/public/styles.css b/public/styles.css[m
+[1mindex a897bf9..de86a8d 100644[m
+[1m--- a/public/styles.css[m
+[1m+++ b/public/styles.css[m
+[36m@@ -144,11 +144,6 @@[m [mbody {[m
+   margin-top: 16px;[m
+ }[m
+ [m
+[31m-.cvc-clue-icon {[m
+[31m-  opacity: 0.7;[m
+[31m-  font-size: 2.5rem;[m
+[31m-}[m
+[31m-[m
+ .cvc-clue {[m
+   display: inline-flex;[m
+   align-items: center;[m
+[1mdiff --git a/src/data/cvc_words.js b/src/data/cvc_words.js[m
+[1mindex 0ac66df..f5bf0f9 100644[m
+[1m--- a/src/data/cvc_words.js[m
+[1m+++ b/src/data/cvc_words.js[m
+[36m@@ -21,7 +21,6 @@[m [mexport const CVC_WORDS = [[m
+   { word: 'pen', clue: '\u{1F58A}' },[m
+   { word: 'som', clue: '\u2795' },[m
+   { word: 'tak', clue: '\u{1F33F}' },[m
+[31m-  { word: 'rem', clue: '\u{1F6D1}' },[m
+   { word: 'bel', clue: '\u{1F514}' },[m
+ ];[m
+ [m
+[1mdiff --git a/src/modes/cvc.js b/src/modes/cvc.js[m
+[1mindex b50e14f..8edd966 100644[m
+[1m--- a/src/modes/cvc.js[m
+[1m+++ b/src/modes/cvc.js[m
+[36m@@ -22,7 +22,6 @@[m [mexport function mountCVC(){[m
+   );[m
+ [m
+   const hint = el('div',{className:'center big cvc-hint'},[m
+[31m-    el('span',{className:'cvc-clue-icon'},'\u{1F5BC}'),[m
+     el('span',{id:'cvc-clue', className:'cvc-clue'}));[m
+   const helper = el('div',{className:'center muted', textContent:'Schrijf het woord met de letters.'});[m
+   const slots = el('div',{id:'slots', className:'slots'});[m
