@@ -150,6 +150,26 @@ body {
   font-size: 4.5rem;
   line-height: 1;
 }
+
+.clock-symbol {
+  font-size: 6.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.math-sum {
+  font-size: 4.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.math-feedback {
+  margin-top: 12px;
+}
 .trophy-grid {
   display: flex;
   flex-wrap: wrap;

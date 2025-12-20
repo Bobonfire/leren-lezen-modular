@@ -6,6 +6,8 @@ import { nextThreshold } from './core/rewards.js';
 import { show as showScreen } from './router.js';
 import { mountEmoji } from './modes/emoji.js';
 import { mountCVC } from './modes/cvc.js';
+import { mountClock } from './modes/clock.js';
+import { mountMath } from './modes/math.js';
 
 
 /* ----------------------------
@@ -71,11 +73,27 @@ const goCVC = () => {
   showScreen('#screen-cvc');
   mountCVC();
 };
+const goClock = () => {
+  resetSession({ resetStickers: true });
+  history.pushState({ page: 'clock' }, '');
+  showScreen('#screen-clock');
+  mountClock();
+};
+const goMath = () => {
+  resetSession({ resetStickers: true });
+  history.pushState({ page: 'math' }, '');
+  showScreen('#screen-math');
+  mountMath();
+};
 
 const btnEmoji = $('#nav-emoji');
 const btnCVC   = $('#nav-cvc');
+const btnClock = $('#nav-clock');
+const btnMath  = $('#nav-math');
 if (btnEmoji) btnEmoji.onclick = goEmoji;
 if (btnCVC)   btnCVC.onclick   = goCVC;
+if (btnClock) btnClock.onclick = goClock;
+if (btnMath)  btnMath.onclick  = goMath;
 
 /* ----------------------------
    Browser back/forward
