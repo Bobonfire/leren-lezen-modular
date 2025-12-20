@@ -113,7 +113,7 @@ export const EMOJI_WORDS = [
   { emoji: '🌧️', word: 'regen' },
   { emoji: '❄️', word: 'sneeuw' },
   { emoji: '🌈', word: 'regenboog' },
-  { emoji: '🌪️', word: 'storm' },
+  { emoji: '🌪️', word: 'tornado' },
   { emoji: '🌊', word: 'zee' },
   { emoji: '🔥', word: 'vuur' },
   { emoji: '💧', word: 'druppel' },
@@ -151,5 +151,5 @@ export const EMOJI_WORDS = [
   { emoji: '🖥️', word: 'computer' },
   { emoji: '📺', word: 'tv' },
   { emoji: '🔑', word: 'sleutel' },
-  { emoji: '🛒', word: 'winkelwage' }
+  { emoji: '🛒', word: 'winkelwagen' }
 ];
