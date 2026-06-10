@@ -10,6 +10,8 @@ import { CLOCK_HOURS } from '../data/clock_hours.js';
 import { animateStickerToTrophy } from '../ui/trophy.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const HARD_MODE_AFTER = 3;
+const HARD_MODE_ROUNDS = 2;
 
 function svgEl(tag, attrs = {}){
   const node = document.createElementNS(SVG_NS, tag);
@@ -25,7 +27,7 @@ function pointOnCircle(cx, cy, r, deg){
   };
 }
 
-function buildClockSvg(hour){
+function buildClockSvg(hour, { useDashes = false } = {}){
   const size = 200;
   const cx = size / 2;
   const cy = size / 2;
@@ -63,11 +65,11 @@ function buildClockSvg(hour){
     const t = svgEl('text', {
       x: pos.x,
       y: pos.y,
-      class: 'clock-number',
+      class: useDashes ? 'clock-number clock-number-dash' : 'clock-number',
       'text-anchor': 'middle',
       'dominant-baseline': 'middle'
     });
-    t.textContent = String(n);
+    t.textContent = useDashes ? '-' : String(n);
     numbers.append(t);
   }
 
@@ -110,6 +112,12 @@ export function mountClock(){
   );
 
   const clockFace = el('div',{className:'clock-face', id:'clock-face'});
+  const starsOverlay = el(
+    'div',
+    { id:'clock-stars', className:'clock-stars', 'aria-hidden':'true' },
+    el('span',{ className:'clock-star', textContent:'\u2B50' }),
+    el('span',{ className:'clock-star', textContent:'\u2B50' })
+  );
   const helper = el('div',{className:'center muted', textContent:'Kies de juiste tijd.'});
   const options = el('div',{id:'clock-options', className:'grid cols-2'});
   const feedback = el('div',{id:'clock-feedback', className:'center muted clock-feedback'});
@@ -119,6 +127,10 @@ export function mountClock(){
 
   $('#clock-reset').onclick = ()=>{
     resetSession({ resetStickers:true });
+    normalCorrectCount = 0;
+    hardCorrectCount = 0;
+    hardMode = false;
+    isHardRound = false;
     syncToolbar();
     nextRound();
   };
@@ -141,16 +153,23 @@ export function mountClock(){
   let current = null;
   let wrongAttempts = 0;
   let correctButton = null;
+  let normalCorrectCount = 0;
+  let hardCorrectCount = 0;
+  let hardMode = false;
+  let isHardRound = false;
 
   function renderClock(hour){
     clockFace.textContent = '';
-    clockFace.append(buildClockSvg(hour));
+    clockFace.append(buildClockSvg(hour, { useDashes: isHardRound }));
+    clockFace.append(starsOverlay);
+    starsOverlay.classList.remove('show');
   }
 
   function nextRound(){
     setFirstTry(true);
     wrongAttempts = 0;
     current = pick(CLOCK_HOURS, state.recentWords, 'label');
+    isHardRound = hardMode;
     renderClock(current.hour);
 
     feedback.textContent = '';
@@ -174,11 +193,29 @@ export function mountClock(){
         if(label === current.label){
           b.classList.add('ok');
           feedback.textContent = state.firstTry ? 'Top! Eerste poging! \u{1F3AF}' : 'Goed!';
+          if(isHardRound){
+            starsOverlay.classList.remove('show');
+            void starsOverlay.offsetWidth;
+            starsOverlay.classList.add('show');
+            setTimeout(()=> starsOverlay.classList.remove('show'), 1000);
+            hardCorrectCount += 1;
+            if(hardCorrectCount >= HARD_MODE_ROUNDS){
+              hardMode = false;
+              normalCorrectCount = 0;
+            }
+          }
           const newStreak = incrementStarsWithAntiGuess();
           setStreak(state.firstTry ? newStreak : 0);
           pushRecent(current.label, NO_REPEAT_WINDOW);
           checkAndAward(animateStickerToTrophy);
           fireConfetti();
+          if(!isHardRound){
+            normalCorrectCount += 1;
+            if(normalCorrectCount >= HARD_MODE_AFTER){
+              hardMode = true;
+              hardCorrectCount = 0;
+            }
+          }
           updateCountdown();
           setTimeout(nextRound, 900);
         } else {

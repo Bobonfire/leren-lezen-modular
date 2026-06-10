@@ -155,6 +155,7 @@ body {
   width: clamp(160px, 45vw, 240px);
   aspect-ratio: 1 / 1;
   margin: 12px auto;
+  position: relative;
 }
 
 .clock-svg {
@@ -185,6 +186,11 @@ body {
   font-family: system-ui, Segoe UI, Roboto;
 }
 
+.clock-number-dash {
+  font-size: 22px;
+  font-weight: 900;
+}
+
 .clock-hand {
   stroke: #111;
   stroke-linecap: round;
@@ -204,6 +210,30 @@ body {
 
 .clock-feedback {
   margin-top: 12px;
+}
+
+.clock-stars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.clock-stars.show {
+  opacity: 1;
+}
+
+.clock-star {
+  font-size: 64px;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
+}
+
+.clock-stars.show .clock-star {
+  animation: clockStarPop 900ms ease-out;
 }
 
 .math-sum {
@@ -338,6 +368,21 @@ body {
 @keyframes spin {
   to {
     transform: translate(-50%, -50%) rotate(720deg);
+  }
+}
+
+@keyframes clockStarPop {
+  0% {
+    transform: scale(0.4) rotate(-12deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0;
   }
 }
 
