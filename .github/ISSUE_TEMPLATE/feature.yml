@@ -1,0 +1,45 @@
+name: Feature
+description: Vraag een nieuwe functie of verbetering aan.
+title: "[Feature]: "
+labels:
+  - feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Beschrijf de gewenste functie concreet. Denk aan leerdoel, doelgroep en acceptatiecriteria.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Probleem of kans
+      description: Welk probleem lost dit op of welke waarde voegt dit toe?
+      placeholder: Kinderen moeten makkelijker kunnen oefenen met ...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Gewenste oplossing
+      description: Beschrijf de gewenste werking.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptatiecriteria
+      description: Maak de criteria testbaar.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Buiten scope
+      description: Wat hoort nadrukkelijk niet bij deze wijziging?
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Voeg screenshots, links of opmerkingen toe wanneer relevant.
