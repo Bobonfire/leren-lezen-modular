@@ -24,8 +24,11 @@ Must load and execute:
 
 * Dev Summary (`ai-agents/skills/shared-skills.md`)
 * Decision Record (`ai-agents/skills/shared-skills.md`)
+* Budget Control (`ai-agents/skills/budget-control.md`)
 
 The Orchestrator Agent must validate that required artifacts exist before progressing workflow.
+The Orchestrator Agent must validate Budget Control before starting any mutating
+workflow action or model call.
 
 ## Model Policy
 
@@ -82,6 +85,7 @@ Required inputs:
 * GitHub issue status
 * Decision Records
 * Dev Summaries
+* Budget Control decision
 * Escalation requests
 * GitHub event payloads
 
@@ -113,6 +117,9 @@ The first implementation phase is dry-run orchestration only. In dry-run mode th
 Orchestrator Agent reports the next workflow action but does not start model
 calls, create branches, create pull requests, or merge code.
 
+The Orchestrator Agent may leave dry-run mode only when Budget Control returns
+`Budget Approved` for the target work item.
+
 ## Entry Criteria
 
 The Orchestrator Agent is continuously active.
@@ -130,6 +137,7 @@ The Orchestrator Agent may transition workflow only when:
 
 * Dev Summary skill loaded from `ai-agents/skills/shared-skills.md`
 * Decision Record skill loaded from `ai-agents/skills/shared-skills.md`
+* Budget Control skill loaded from `ai-agents/skills/budget-control.md`
 
 ## Responsibilities
 
@@ -199,6 +207,7 @@ Before transitioning work:
 * Meaningful Decision Records exist where required
 * GitHub Project Board is updated or ready to be updated as part of the transition
 * Required approvals exist
+* Budget Control allows the transition
 * No unresolved blockers exist
 
 ## Outputs
@@ -232,6 +241,7 @@ Every handoff must include:
 * Current state
 * Dev Summary
 * GitHub Project Board status
+* Budget Control status
 * Relevant Decision Records
 * Open issues
 * Outstanding risks
@@ -296,6 +306,7 @@ May exit only when:
 * Workflow transition, escalation, pause, or completion is recorded.
 * Required Dev Summary exists and is included in handoff, escalation, completion, user story closure, or human intervention request.
 * Meaningful Decision Records exist where required by `ai-agents/skills/shared-skills.md`.
+* Budget Control status is recorded where a modelcall, agent start, or mutating GitHub action is requested.
 * GitHub Project Board reflects the authoritative current workflow state.
 * No workflow state is advanced while required artifacts or approvals are missing.
 
