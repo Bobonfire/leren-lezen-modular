@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  validate:
+    name: Validate repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check required files
+        shell: bash
+        run: |
+          test -f AGENTS.md
+          test -d ai-agents/skills
+          test -d ai-agents/tools
+          test -f ai-agents/agents/po-agent.md
+          test -f ai-agents/agents/developer-agent.md
+          test -f ai-agents/agents/tester-agent.md
+          test -f ai-agents/agents/code-reviewer-agent.md
+          test -f ai-agents/agents/documentation-agent.md
+          test -f ai-agents/agents/orchestrator-agent.md
+          test -f ai-agents/workflows/github-orchestration-workflow.md
+          test -f .github/workflows/agent-orchestrator.yml
+          test -f .github/ISSUE_TEMPLATE/feature.yml
+          test -f .github/pull_request_template.md
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          find src -name "*.js" -print0 | xargs -0 -n1 node --check
+          node --check scripts/smoke-test.mjs
+          node --check scripts/agent-orchestrator.mjs
+
+      - name: Run smoke test
+        shell: bash
+        run: node scripts/smoke-test.mjs
