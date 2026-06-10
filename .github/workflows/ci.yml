@@ -27,6 +27,7 @@ jobs:
           test -f AGENTS.md
           test -d ai-agents/skills
           test -d ai-agents/tools
+          test -f ai-agents/skills/budget-control.md
           test -f ai-agents/agents/po-agent.md
           test -f ai-agents/agents/developer-agent.md
           test -f ai-agents/agents/tester-agent.md

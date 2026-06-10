@@ -21,6 +21,7 @@ De orchestration laag gebruikt:
 - `ai-agents/workflows/feature-delivery-workflow.md`
 - `ai-agents/agents/orchestrator-agent.md`
 - `ai-agents/skills/shared-skills.md`
+- `ai-agents/skills/budget-control.md`
 
 ## GitHub Objecten
 
@@ -93,6 +94,8 @@ De GitHub Action reageert op:
 - De Orchestrator Agent wijzigt geen source code.
 - De Orchestrator Agent maakt geen product- of technische beslissingen.
 - De Orchestrator Agent start geen dure modelcalls zonder budget-control skill.
+- De Orchestrator Agent blijft in dry-run zolang Budget Control niet expliciet
+  `Budget Approved` geeft.
 - Merge gebeurt alleen na expliciete menselijke approval.
 - Geen automatische merge wanneer `state:blocked` aanwezig is.
 - Elke agentoverdracht moet een Dev Summary bevatten.
@@ -107,13 +110,13 @@ In dry-run mode:
 - Wordt een GitHub Actions job summary geschreven.
 - Worden er geen labels, comments, branches, PR's of merges uitgevoerd.
 
-## Vervolg: Budget Control
+## Budget Control
 
-Budget control wordt bewust apart toegevoegd als shared skill:
+Budget control is apart vastgelegd als shared skill:
 
 - `ai-agents/skills/budget-control.md`
 
-Die skill moet later bepalen:
+Die skill bepaalt:
 
 - Maximaal aantal agentruns per issue.
 - Maximaal aantal modelcalls per workflow.
