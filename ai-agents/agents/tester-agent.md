@@ -87,6 +87,9 @@ Required inputs:
 * Validate Definition of Done
 * Validate test quality
 * Validate deployment readiness from a quality perspective
+* Establish a pre-refactor baseline with exact commands, scenarios, known failures, and preserved contracts
+* Independently rerun the same relevant baseline after refactoring and compare observable results
+* Add targeted boundary and negative-path validation for structurally changed code
 * Ensure the GitHub Project Board is updated with testing state, blockers, failure status, pass status, or handoff by writing directly when allowed or requesting the Orchestrator Agent to update it
 
 ## Decision Rights
@@ -163,6 +166,7 @@ Primary handoff:
 Secondary handoff:
 
 * Developer Agent (when defects found)
+* Refactor Agent (when a refactor changes behavior or lacks equivalence evidence)
 
 Handoff package:
 
@@ -173,6 +177,7 @@ Handoff package:
 * Defect descriptions
 * Reproduction steps
 * Risk summary
+* Baseline comparison and preserved-contract evidence for refactor work
 
 ## Agent Interaction Rules
 
@@ -180,6 +185,7 @@ May interact with:
 
 * Product Owner Agent
 * Developer Agent
+* Refactor Agent
 
 Must remain independent:
 

@@ -113,3 +113,11 @@ UI components and effects.
 ---
 
 This document should be kept in `docs/PROJECT_STRUCTURE.md` and updated whenever new files or modules are added.
+
+---
+
+## Structuurupdate: statische root-entrypoint en smoke-test
+
+- `index.html` is de root-entrypoint voor statische hosting vanaf de repository-root. Dit bestand laadt `public/styles.css` en `src/main.js`, zodat de app start en de homeknoppen hun interacties krijgen.
+- `public/index.html` blijft beschikbaar als public-folder entrypoint.
+- `scripts/smoke-test.mjs` controleert zonder extra dependencies of de entrypoints, assetpaden, primaire knoppen en responsive CSS-guards aanwezig zijn.

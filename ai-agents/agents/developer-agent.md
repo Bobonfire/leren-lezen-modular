@@ -93,6 +93,10 @@ Required inputs:
 * Maintain architecture compliance
 * Maintain security compliance
 * Deliver production-ready increments
+* Apply approved, evidenced quality instructions received from the Refactor Agent
+* Avoid recurring maintainability patterns documented in accepted refactor reports
+* Voer voor handoff een documentatie-impactcheck uit volgens `docs/DOCUMENTATION.md`
+* Geef de Documentation Agent de geraakte modules, zichtbaar gedrag, configuratie en mogelijke verouderde documenten door
 * Keep the GitHub Project Board updated when work starts, becomes blocked, opens a PR, passes checks, is handed off, or is completed
 
 ## Decision Rights
@@ -162,12 +166,18 @@ Produces:
 * Pull requests
 * Technical documentation
 * CI/CD updates
+* Documentatie-impactindicatie: `agent`, `human`, `beide` of `geen`, met motivatie
 
 ## Handoff Contract
 
 Primary handoff:
 
-* Product Owner Agent
+* Tester Agent
+
+Downstream consumer:
+
+* Documentation Agent ontvangt de impactindicatie via de workflow nadat testen
+  en review een stabiele wijziging bevestigen
 
 Handoff package:
 
@@ -178,6 +188,7 @@ Handoff package:
 * CI/CD results
 * Implementation summary
 * Known limitations
+* Documentatie-impactindicatie en geraakte documenten of onderwerpen
 
 ## Agent Interaction Rules
 
@@ -185,6 +196,7 @@ May interact with:
 
 * Product Owner Agent
 * Secondary Developer Agent (pair programming mode)
+* Refactor Agent for maintainability feedback and approved instruction improvements
 
 May create:
 

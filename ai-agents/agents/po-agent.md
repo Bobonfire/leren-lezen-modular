@@ -153,6 +153,7 @@ Acceptance criteria:
 * Verify feature alignment with product vision
 * Verify Definition of Done completion
 * Validate delivered functionality against approved user stories
+* Validate dat bijgewerkte mensgerichte documentatie het goedgekeurde productgedrag begrijpelijk en zonder nieuwe scope beschrijft
 * Coordinate additional agents when corrective actions are required
 * Manage backlog hygiene and consistency
 
@@ -217,6 +218,7 @@ Before approving work:
 * Definition of Done satisfied
 * Business objective achieved
 * Scope remains aligned with approved vision
+* Vereiste documentatie-impact is afgehandeld en mensgerichte uitleg spreekt het geaccepteerde gedrag niet tegen
 
 ## Outputs
 
