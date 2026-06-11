@@ -386,4 +386,113 @@ body {
   }
 }
 
+/* Responsive and interaction safety overrides */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  line-height: 1.5;
+}
+
+.app {
+  width: 100%;
+}
+
+.card {
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.btn {
+  min-height: 48px;
+  max-width: 100%;
+  touch-action: manipulation;
+}
+
+.grid .btn,
+.grid .tile {
+  width: 100%;
+}
+
+.btn:focus-visible,
+.tile:focus-visible,
+#btn-audio:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.45);
+  outline-offset: 2px;
+}
+
+.pill {
+  align-items: center;
+  max-width: 100%;
+}
+
+#btn-audio {
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 4px 10px;
+}
+
+.slots {
+  flex-wrap: wrap;
+}
+
+.pause-title {
+  font-size: 2rem;
+}
+
+@media (max-width: 520px) {
+  .app {
+    padding: 10px 10px 96px;
+  }
+
+  .card {
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .pill {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .grid.cols-2,
+  .grid.cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .big,
+  #emoji-symbol,
+  .cvc-clue,
+  .math-sum {
+    font-size: 3.5rem;
+  }
+
+  .slot {
+    width: 64px;
+    height: 66px;
+    font-size: 2rem;
+  }
+
+  .clock-star {
+    font-size: 48px;
+  }
+}
+
 

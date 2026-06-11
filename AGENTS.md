@@ -11,6 +11,8 @@ Lees voor iedere wijziging eerst de projectinstructies:
 - `ai/ai_instructions/CODE_QUALITY.md`
 - `ai/ai_instructions/CODE_SECURITY.md`
 - `docs/PROJECT_STRUCTURE.md`
+- `docs/DOCUMENTATION.md`
+- `docs/agents/AGENT_HANDBOOK.md`
 - `docs/CONTRIBUTING.md` wanneer de wijziging proces, review of samenwerking raakt.
 
 Meld in je antwoord welke instructiebestanden je hebt gebruikt.
@@ -21,6 +23,8 @@ Meld in je antwoord welke instructiebestanden je hebt gebruikt.
 - Raak geen bestaande wijzigingen van anderen terug zonder expliciete opdracht.
 - Voeg geen dependencies toe zonder expliciete goedkeuring.
 - Update documentatie wanneer structuur, gedrag of workflow verandert.
+- Voer bij iedere wijziging een documentatie-impactcheck uit volgens `docs/DOCUMENTATION.md`.
+- Werk agentgerichte en mensgerichte documentatie apart bij; een codecommentaar of PR-samenvatting vervangt geen gebruikersdocumentatie.
 - Houd UI-wijzigingen toegankelijk, responsief en consistent met de bestaande vanilla HTML/CSS/JS aanpak.
 - Gebruik Nederlands voor projectdocumentatie en issue/PR communicatie, tenzij bestaande code of externe tooling Engels vereist.
 

@@ -153,6 +153,10 @@ The Orchestrator Agent may transition workflow only when:
 * Ensure required artifacts exist
 * Maintain audit trail
 * Keep the GitHub Project Board synchronized as the workflow cockpit before and after every valid state transition
+* Start de Documentation Agent na een non-blocking review en voor productvalidatie
+* Vereis een documentatie-impactuitkomst, ook wanneer de uitkomst `geen` is
+* Route approved maintenance work through the dedicated refactoring workflow
+* Start the Tester Agent before and after Refactor Agent execution
 
 ## Decision Rights
 
@@ -209,6 +213,7 @@ Before transitioning work:
 * Required approvals exist
 * Budget Control allows the transition
 * No unresolved blockers exist
+* Documentatie-impact is beoordeeld en benodigde documentatie is bijgewerkt voordat productvalidatie start
 
 ## Outputs
 
@@ -230,6 +235,7 @@ Instead it hands work to:
 
 * Product Owner Agent
 * Developer Agent
+* Refactor Agent
 * Tester Agent
 * Reviewer Agent
 * Documentation Agent
@@ -252,6 +258,7 @@ May interact with:
 
 * Product Owner Agent
 * Developer Agent
+* Refactor Agent
 * Tester Agent
 * Reviewer Agent
 * Documentation Agent

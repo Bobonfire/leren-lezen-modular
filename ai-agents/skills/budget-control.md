@@ -16,7 +16,8 @@ De Budget Control skill moet worden uitgevoerd:
 
 - Voor elke modelcall.
 - Voor elke overgang van dry-run naar muterende orchestration.
-- Voor het starten van een PO, Developer, Tester, Reviewer of Documentation Agent.
+- Voor het starten van een PO, Developer, Refactor, Tester, Reviewer of
+  Documentation Agent.
 - Voor het opnieuw starten van een agent na failure, blocker of review feedback.
 - Voor elke merge-aanvraag.
 
@@ -45,10 +46,16 @@ Voor toekomstige muterende mode gelden als startpunt:
 
 - Maximaal 1 PO Agent run per state transition.
 - Maximaal 1 Developer Agent run per development attempt.
+- Maximaal 1 Refactor Agent run per refactor attempt.
 - Maximaal 1 Tester Agent run per PR update.
 - Maximaal 1 Reviewer Agent run per PR update.
+- Maximaal 1 Documentation Agent run per documentation state transition.
 - Maximaal 3 autonomous repair rounds per work item.
 - Maximaal 1 merge attempt na expliciete Bob approval.
+
+Een Refactor Agent mag alleen opnieuw starten wanneer een Tester- of Reviewer
+Agent nieuwe concrete failure evidence heeft geleverd, de refactorscope is
+gewijzigd of een expliciete menselijke herstart is vastgelegd.
 
 ## Model Policy
 
