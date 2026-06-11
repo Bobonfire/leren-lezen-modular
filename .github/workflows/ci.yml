@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,6 +47,15 @@ jobs:
           find src -name "*.js" -print0 | xargs -0 -n1 node --check
           node --check scripts/smoke-test.mjs
           node --check scripts/agent-orchestrator.mjs
+
+      - name: Check patch whitespace
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+          else
+            git diff --check "${{ github.event.before }}..HEAD"
+          fi
 
       - name: Run smoke test
         shell: bash
