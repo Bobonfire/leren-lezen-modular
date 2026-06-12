@@ -18,6 +18,7 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - closed
       - labeled
       - unlabeled
   pull_request_review:

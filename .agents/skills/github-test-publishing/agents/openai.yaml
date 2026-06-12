@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Test Publishing"
+  short_description: "Publiceer onafhankelijk Testerbewijs"
+  default_prompt: "Use $github-test-publishing to publish Tester evidence."

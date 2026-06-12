@@ -52,6 +52,7 @@ Gedeeld:
 
 Evidence:
 
+- `evidence:ci-passed`
 - `evidence:test-passed`
 - `evidence:review-passed`
 - `evidence:changes-required`
@@ -64,10 +65,12 @@ head-SHA hoort. Een draft keert terug naar development; een PR die gereed is
 voor review keert altijd terug naar verification, ook vanuit acceptance,
 approval of `state:ready-for-merge`.
 
-- succesvolle CI-completion zet alleen `evidence:test-passed` wanneer de
+- succesvolle CI-completion zet alleen `evidence:ci-passed` wanneer de
   workflow-SHA exact gelijk is aan de actuele PR-head-SHA;
 - CI-completions voor een oudere SHA worden zonder label- of statusmutatie
   genegeerd;
+- Tester zet na onafhankelijke gedragsverificatie op diezelfde SHA
+  `evidence:test-passed`;
 - een blocking review zet `evidence:changes-required`;
 - een non-blocking Reviewer-uitkomst zet `evidence:review-passed`;
 - Documentation zet `evidence:documentation-none` of
@@ -75,10 +78,16 @@ approval of `state:ready-for-merge`.
 - Product Owner zet na Full Delivery-acceptatie
   `evidence:product-accepted`.
 
+Verification gaat pas verder wanneer CI, Tester en Reviewer alle drie geldig
+bewijs voor exact dezelfde actuele PR-head-SHA hebben.
+
 ## Events
 
 De Action reageert op issues, pull requests, comments, CI-completion,
 handmatige runs en pushes naar niet-hoofdbranches.
+
+Een gesloten of gemergede PR gaat naar `state:done`. Een dismissed review maakt
+Reviewerbewijs ongeldig en zet een reviewklare PR terug naar verification.
 
 Push-events controleren of een branch al aan een gemergede of gesloten PR was
 gekoppeld. Zo'n branch wordt `state:blocked`; delivery moet opnieuw starten op

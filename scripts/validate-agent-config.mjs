@@ -32,6 +32,7 @@ const expectedSkills = new Set([
   "github-backlog-publishing",
   "github-documentation-publishing",
   "github-review-publishing",
+  "github-test-publishing",
   "github-workflow-publishing",
   "handoff-package",
   "refactoring",

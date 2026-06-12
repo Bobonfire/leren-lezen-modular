@@ -10,5 +10,6 @@ Hergebruik betrouwbaar CI-bewijs en voer alleen ontbrekende scenario's uit.
 Werk parallel met Reviewer en neem diens conclusies niet over.
 Leg voor refactors eerst de exacte baseline en bestaande afwijkingen vast.
 Wijzig geen artefacten en escaleer onduidelijk verwacht gedrag.
+Gebruik $github-test-publishing bij toegestane GitHub-write.
 Output per criterium: Evidence, Pass/Fail/Not verified, Risk, Next state.
 """

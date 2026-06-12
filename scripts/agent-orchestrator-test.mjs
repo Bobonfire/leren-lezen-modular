@@ -91,11 +91,13 @@ const unauthorizedApprovalPlan = buildPlan({
 assert.equal(unauthorizedApprovalPlan.state, "state:fast-approval");
 
 assert.equal(advanceState("state:fast-verification", [
+  "evidence:ci-passed",
   "evidence:test-passed",
   "evidence:review-passed",
   "evidence:documentation-none",
 ]), "state:fast-approval");
 assert.equal(advanceState("state:full-verification", [
+  "evidence:ci-passed",
   "evidence:test-passed",
   "evidence:review-passed",
 ]), "state:full-documentation");
@@ -118,6 +120,7 @@ const synchronizedPull = buildPlan({
       labels: [
         { name: "route:fast" },
         { name: "state:fast-verification" },
+        { name: "evidence:ci-passed" },
         { name: "evidence:test-passed" },
         { name: "evidence:review-passed" },
       ],
@@ -206,6 +209,7 @@ const approvedReview = buildPlan({
       labels: [
         { name: "route:fast" },
         { name: "state:fast-verification" },
+        { name: "evidence:ci-passed" },
         { name: "evidence:test-passed" },
         { name: "evidence:changes-required" },
         { name: "evidence:documentation-none" },
@@ -218,6 +222,33 @@ const approvedReview = buildPlan({
 assert.equal(approvedReview.state, "state:fast-approval");
 assert.equal(approvedReview.labels.includes("evidence:review-passed"), true);
 assert.equal(approvedReview.labels.includes("evidence:changes-required"), false);
+
+const dismissedReview = buildPlan({
+  event: {
+    action: "dismissed",
+    pull_request: {
+      number: 25,
+      title: "Review dismissed",
+      state: "open",
+      draft: false,
+      head: { sha: "review456" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:full-approval" },
+        { name: "evidence:ci-passed" },
+        { name: "evidence:test-passed" },
+        { name: "evidence:review-passed" },
+        { name: "evidence:documentation-complete" },
+        { name: "evidence:product-accepted" },
+      ],
+    },
+    review: { state: "approved" },
+  },
+  eventName: "pull_request_review",
+});
+assert.equal(dismissedReview.state, "state:full-verification");
+assert.equal(dismissedReview.labels.includes("evidence:review-passed"), false);
+assert.deepEqual(dismissedReview.nextAgents, ["tester", "reviewer"]);
 
 const successfulCi = buildPlan({
   event: {
@@ -241,9 +272,12 @@ const successfulCi = buildPlan({
   },
   eventName: "workflow_run",
 });
-assert.equal(successfulCi.state, "state:full-documentation");
-assert.equal(successfulCi.labels.includes("evidence:test-passed"), true);
+assert.equal(successfulCi.state, "state:full-verification");
+assert.equal(successfulCi.labels.includes("evidence:ci-passed"), true);
+assert.equal(successfulCi.labels.includes("evidence:test-passed"), false);
 assert.equal(successfulCi.shouldPublish, true);
+assert.equal(successfulCi.workflowComment.includes("- CI: `pass`"), true);
+assert.equal(successfulCi.workflowComment.includes("- Tester: `pending`"), true);
 
 for (const conclusion of ["success", "failure"]) {
   const staleCi = buildPlan({
@@ -270,9 +304,34 @@ for (const conclusion of ["success", "failure"]) {
     eventName: "workflow_run",
   });
   assert.equal(staleCi.shouldPublish, false);
+  assert.equal(staleCi.labels.includes("evidence:ci-passed"), false);
   assert.equal(staleCi.labels.includes("evidence:test-passed"), false);
   assert.equal(staleCi.labels.includes("evidence:changes-required"), false);
 }
+
+const closedPull = buildPlan({
+  event: {
+    action: "closed",
+    pull_request: {
+      number: 28,
+      title: "Completed feature",
+      state: "closed",
+      merged: true,
+      draft: false,
+      head: { sha: "merged123" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:ready-for-merge" },
+        { name: "evidence:ci-passed" },
+        { name: "evidence:test-passed" },
+        { name: "evidence:review-passed" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(closedPull.state, "state:done");
+assert.deepEqual(closedPull.nextAgents, []);
 
 const stalePlan = buildPlan({
   event: {

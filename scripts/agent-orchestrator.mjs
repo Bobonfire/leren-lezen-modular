@@ -28,6 +28,7 @@ const LABEL_COLORS = {
   "agent:reviewer": "C2E0C6",
   "agent:documentation": "C2E0C6",
   "agent:human-approval-required": "F9D0C4",
+  "evidence:ci-passed": "0E8A16",
   "evidence:test-passed": "0E8A16",
   "evidence:review-passed": "0E8A16",
   "evidence:changes-required": "B60205",
@@ -152,7 +153,20 @@ export function determineState({
 }) {
   if (staleBranch) return "state:blocked";
 
+  if (
+    eventName === "pull_request"
+    && (workItem.merged || workItem.state === "closed")
+  ) {
+    return "state:done";
+  }
+
   if (eventName === "pull_request" && eventAction === "synchronize") {
+    return workItem.draft
+      ? `state:${route}-development`
+      : `state:${route}-verification`;
+  }
+
+  if (eventName === "pull_request_review" && eventAction === "dismissed") {
     return workItem.draft
       ? `state:${route}-development`
       : `state:${route}-verification`;
@@ -191,7 +205,8 @@ export function advanceState(state, labels) {
       : "state:fast-development";
   }
 
-  const verified = labels.includes("evidence:test-passed")
+  const verified = labels.includes("evidence:ci-passed")
+    && labels.includes("evidence:test-passed")
     && labels.includes("evidence:review-passed");
   if (state === "state:fast-verification" && verified) {
     return labels.includes("evidence:documentation-none")
@@ -352,9 +367,9 @@ function getEvidenceLabels({
     && event.workflow_run?.status === "completed"
   ) {
     if (event.workflow_run.conclusion === "success") {
-      evidence.add("evidence:test-passed");
+      evidence.add("evidence:ci-passed");
     } else {
-      evidence.delete("evidence:test-passed");
+      evidence.delete("evidence:ci-passed");
       evidence.add("evidence:changes-required");
     }
   }
@@ -410,7 +425,7 @@ function buildWorkflowComment({
     `- Route: \`${route}\``,
     `- State: \`${state}\``,
     `- Commit: \`${sha || "unknown"}\``,
-    `- CI: \`${evidence.has("evidence:test-passed") ? "pass" : "pending"}\``,
+    `- CI: \`${evidence.has("evidence:ci-passed") ? "pass" : "pending"}\``,
     `- Tester: \`${evidence.has("evidence:test-passed") ? "pass" : "pending"}\``,
     `- Reviewer: \`${evidence.has("evidence:review-passed") ? "pass" : "pending"}\``,
     `- Documentation impact: \`${documentation}\``,
