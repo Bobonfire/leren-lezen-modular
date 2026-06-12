@@ -46,7 +46,17 @@ export function buildPlan({
 } = {}) {
   const workItem = getWorkItem(event);
   const labels = getLabels(workItem);
-  const evidenceLabels = getEvidenceLabels({ event, eventName, labels });
+  const workflowRunMatchesHead = isWorkflowRunForCurrentHead({
+    event,
+    eventName,
+    workItem,
+  });
+  const evidenceLabels = getEvidenceLabels({
+    event,
+    eventName,
+    labels,
+    workflowRunMatchesHead,
+  });
   const effectiveLabels = [
     ...labels.filter((label) => !label.startsWith("evidence:")),
     ...evidenceLabels,
@@ -56,6 +66,7 @@ export function buildPlan({
   const approvalDetected = hasAuthorizedApprovalComment(event);
   const state = determineState({
     eventName,
+    eventAction: event.action,
     workItem,
     labels: effectiveLabels,
     route,
@@ -74,6 +85,7 @@ export function buildPlan({
     labels: buildDesiredLabels(route, state, next.agents, evidenceLabels),
     approvalDetected,
     staleBranch,
+    shouldPublish: workflowRunMatchesHead,
     sha,
     number,
     workItem: formatWorkItem(workItem, number),
@@ -131,6 +143,7 @@ export function determineRoute({ event, eventName, workItem, labels }) {
 
 export function determineState({
   eventName,
+  eventAction,
   workItem,
   labels,
   route,
@@ -138,6 +151,12 @@ export function determineState({
   staleBranch,
 }) {
   if (staleBranch) return "state:blocked";
+
+  if (eventName === "pull_request" && eventAction === "synchronize") {
+    return workItem.draft
+      ? `state:${route}-development`
+      : `state:${route}-verification`;
+  }
 
   const explicitState = labels.find((label) => label.startsWith("state:"));
   if (approvalDetected && explicitState?.endsWith("-approval")) {
@@ -293,7 +312,20 @@ function getLabels(item) {
     .filter(Boolean);
 }
 
-function getEvidenceLabels({ event, eventName, labels }) {
+function isWorkflowRunForCurrentHead({ event, eventName, workItem }) {
+  if (eventName !== "workflow_run") return true;
+
+  const workflowSha = event.workflow_run?.head_sha;
+  const pullRequestSha = workItem.head?.sha;
+  return Boolean(workflowSha && pullRequestSha && workflowSha === pullRequestSha);
+}
+
+function getEvidenceLabels({
+  event,
+  eventName,
+  labels,
+  workflowRunMatchesHead,
+}) {
   if (eventName === "pull_request" && event.action === "synchronize") {
     return [];
   }
@@ -314,7 +346,11 @@ function getEvidenceLabels({ event, eventName, labels }) {
       evidence.delete("evidence:changes-required");
     }
   }
-  if (eventName === "workflow_run" && event.workflow_run?.status === "completed") {
+  if (
+    eventName === "workflow_run"
+    && workflowRunMatchesHead
+    && event.workflow_run?.status === "completed"
+  ) {
     if (event.workflow_run.conclusion === "success") {
       evidence.add("evidence:test-passed");
     } else {
@@ -531,7 +567,7 @@ async function main() {
   const existingPullRequests = await loadExistingPullRequests(eventName, event);
   const plan = buildPlan({ event, eventName, existingPullRequests });
 
-  if (mode === "mutate") {
+  if (mode === "mutate" && plan.shouldPublish) {
     await publishPlan(plan, eventName);
   }
   writeSummary(plan, mode, eventName);

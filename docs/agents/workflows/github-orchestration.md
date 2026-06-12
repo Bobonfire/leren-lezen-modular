@@ -60,9 +60,14 @@ Evidence:
 - `evidence:product-accepted`
 
 Een PR-update wist bestaand evidencebewijs omdat het niet langer bij de nieuwe
-head-SHA hoort.
+head-SHA hoort. Een draft keert terug naar development; een PR die gereed is
+voor review keert altijd terug naar verification, ook vanuit acceptance,
+approval of `state:ready-for-merge`.
 
-- succesvolle CI-completion zet `evidence:test-passed`;
+- succesvolle CI-completion zet alleen `evidence:test-passed` wanneer de
+  workflow-SHA exact gelijk is aan de actuele PR-head-SHA;
+- CI-completions voor een oudere SHA worden zonder label- of statusmutatie
+  genegeerd;
 - een blocking review zet `evidence:changes-required`;
 - een non-blocking Reviewer-uitkomst zet `evidence:review-passed`;
 - Documentation zet `evidence:documentation-none` of

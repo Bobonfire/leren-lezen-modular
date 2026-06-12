@@ -104,6 +104,8 @@ flowchart LR
   humandocs, visuals en flows. Ook `geen update nodig` moet worden gemotiveerd.
 - **Bob** bepaalt productrichting, geeft expliciete approval en geeft daarna
   afzonderlijk opdracht om te mergen.
+- Een nieuwe commit maakt eerder test-, review- en approvalbewijs ongeldig. De
+  actuele commit moet opnieuw door Tester, Reviewer en CI worden gecontroleerd.
 
 De uitgebreide flow staat in:
 

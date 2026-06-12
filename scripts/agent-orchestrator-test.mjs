@@ -130,6 +130,69 @@ assert.equal(
   synchronizedPull.labels.some((label) => label.startsWith("evidence:")),
   false,
 );
+assert.deepEqual(synchronizedPull.nextAgents, ["tester", "reviewer"]);
+
+const synchronizedAcceptedPull = buildPlan({
+  event: {
+    action: "synchronize",
+    pull_request: {
+      number: 24,
+      title: "Updated accepted feature",
+      state: "open",
+      draft: false,
+      head: { sha: "new456" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:full-acceptance" },
+        { name: "evidence:test-passed" },
+        { name: "evidence:review-passed" },
+        { name: "evidence:documentation-complete" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(synchronizedAcceptedPull.state, "state:full-verification");
+assert.deepEqual(synchronizedAcceptedPull.nextAgents, ["tester", "reviewer"]);
+
+const synchronizedReadyPull = buildPlan({
+  event: {
+    action: "synchronize",
+    pull_request: {
+      number: 24,
+      title: "Updated approved feature",
+      state: "open",
+      draft: false,
+      head: { sha: "new789" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:ready-for-merge" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(synchronizedReadyPull.state, "state:full-verification");
+
+const synchronizedDraftPull = buildPlan({
+  event: {
+    action: "synchronize",
+    pull_request: {
+      number: 24,
+      title: "Updated draft feature",
+      state: "open",
+      draft: true,
+      head: { sha: "new-draft" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:full-acceptance" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(synchronizedDraftPull.state, "state:full-development");
+assert.deepEqual(synchronizedDraftPull.nextAgents, ["developer"]);
 
 const approvedReview = buildPlan({
   event: {
@@ -180,6 +243,36 @@ const successfulCi = buildPlan({
 });
 assert.equal(successfulCi.state, "state:full-documentation");
 assert.equal(successfulCi.labels.includes("evidence:test-passed"), true);
+assert.equal(successfulCi.shouldPublish, true);
+
+for (const conclusion of ["success", "failure"]) {
+  const staleCi = buildPlan({
+    event: {
+      pull_request: {
+        number: 27,
+        title: "Updated after CI started",
+        state: "open",
+        draft: false,
+        head: { sha: "current456" },
+        labels: [
+          { name: "route:full" },
+          { name: "state:full-verification" },
+          { name: "evidence:review-passed" },
+        ],
+      },
+      workflow_run: {
+        status: "completed",
+        conclusion,
+        head_sha: "stale123",
+        pull_requests: [{ number: 27 }],
+      },
+    },
+    eventName: "workflow_run",
+  });
+  assert.equal(staleCi.shouldPublish, false);
+  assert.equal(staleCi.labels.includes("evidence:test-passed"), false);
+  assert.equal(staleCi.labels.includes("evidence:changes-required"), false);
+}
 
 const stalePlan = buildPlan({
   event: {
