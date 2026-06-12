@@ -5,6 +5,10 @@ description: Maak een korte, stakeholdervriendelijke Dev Summary voor iedere age
 
 # Dev Summary
 
+Gebruik deze volledige structuur alleen voor menselijke approval, release,
+escalatie of workflowafsluiting. Tussentijdse agenthandoffs gebruiken
+`$compact-handoff` en leveren alleen Result, Evidence, Risks en Next state.
+
 Beschrijf alleen beslissingen, resultaten en resterend werk. Neem geen broncode,
 ruwe logs of interne redeneerstappen op.
 
@@ -46,4 +50,3 @@ Kies exact een status:
 - Ready for Acceptance
 - Ready for Release
 - Escalation Required
-

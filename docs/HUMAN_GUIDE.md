@@ -77,37 +77,39 @@ flowchart TB
 
 ## Hoe Agents Samenwerken
 
-De agents leveren niet allemaal tegelijk werk af. De Orchestrator bewaakt een
-vaste flow en Bob houdt de productbeslissingen en finale approval.
+De Orchestrator kiest een korte route voor duidelijke bugs en een volledige
+route voor features of risicovol werk. Agents werken in aparte threads en
+delen status en bewijs via GitHub.
 
 ```mermaid
 flowchart LR
-    Bob["Bob<br/>Voorstel en approval"] --> PO["Product Owner"]
-    PO --> Dev["Developer"]
+    Bob["Bob<br/>Voorstel en approval"] --> O["Orchestrator"]
+    O --> Dev["Developer"]
     Dev --> Test["Tester"]
-    Test --> Review["Reviewer"]
-    Review --> Docs["Documentation"]
-    Docs --> PO
-    PO --> Bob
-
-    Test -.->|Defect| Dev
-    Review -.->|Technische wijziging| Dev
-    Docs -.->|Ontbrekend bewijs| Dev
+    Dev --> Review["Reviewer"]
+    Test --> Gate["Controle"]
+    Review --> Gate
+    Gate --> Docs["Documentation indien nodig"]
+    Docs --> Bob
 ```
 
 - **Orchestrator Agent** bewaakt buiten deze inhoudelijke lijn de workflowstate,
   budgetcontrole, vereiste artefacten en handoffs.
-- **Product Owner Agent** zet de wens om in duidelijke acceptatiecriteria en
-  controleert aan het eind of het productdoel is bereikt.
+- **Product Owner Agent** werkt altijd mee bij features en alleen bij bugs als
+  productgedrag of acceptatiecriteria onduidelijk zijn.
 - **Developer Agent** bouwt de wijziging en meldt de documentatie-impact.
 - **Tester Agent** controleert het zichtbare gedrag en regressies onafhankelijk.
 - **Reviewer Agent** controleert codekwaliteit, architectuur en veiligheid.
 - **Documentation Agent** controleert na iedere stabiele wijziging agentdocs,
   humandocs, visuals en flows. Ook `geen update nodig` moet worden gemotiveerd.
-- **Bob** bepaalt productrichting en geeft expliciete toestemming voor merge.
+- **Bob** bepaalt productrichting, geeft expliciete approval en geeft daarna
+  afzonderlijk opdracht om te mergen.
 
-De uitgebreide flow staat in `docs/agents/agent-collaboration.md` en
-`ai-agents/workflows/feature-delivery-workflow.md`.
+De uitgebreide flow staat in:
+
+- `docs/agents/collaboration.md`;
+- `docs/agents/workflows/fast-delivery.md`;
+- `docs/agents/workflows/full-delivery.md`.
 
 ## Huidige Grenzen
 

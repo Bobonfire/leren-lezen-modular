@@ -28,7 +28,8 @@ jobs:
           test -f .codex/config.toml
           test -d .codex/agents
           test -d .agents/skills
-          test -d ai-agents/tools
+          test ! -e ai
+          test ! -e ai-agents
           test -f .codex/agents/orchestrator.toml
           test -f .codex/agents/product_owner.toml
           test -f .codex/agents/developer.toml
@@ -36,9 +37,18 @@ jobs:
           test -f .codex/agents/reviewer.toml
           test -f .codex/agents/documentation.toml
           test -f .codex/agents/refactor.toml
-          test -f ai-agents/workflows/github-orchestration-workflow.md
+          test -f docs/agents/README.md
+          test -f docs/agents/workflows/github-orchestration.md
+          test -f docs/agents/workflows/fast-delivery.md
+          test -f docs/agents/workflows/full-delivery.md
+          test -f docs/agents/workflows/refactoring.md
+          test -f docs/engineering/code-quality.md
+          test -f docs/engineering/code-security.md
+          test -f docs/engineering/project-structure.md
+          test -f docs/engineering/project-structure.svg
           test -f .github/workflows/agent-orchestrator.yml
           test -f .github/ISSUE_TEMPLATE/feature.yml
+          test -f .github/ISSUE_TEMPLATE/bug.yml
           test -f .github/pull_request_template.md
 
       - name: Check JavaScript syntax
@@ -49,6 +59,7 @@ jobs:
           node --check scripts/app-interaction-test.mjs
           node --check scripts/build-browser-bundle.mjs
           node --check scripts/agent-orchestrator.mjs
+          node --check scripts/agent-orchestrator-test.mjs
           node --check scripts/validate-agent-config.mjs
 
       - name: Validate browser bundle
@@ -58,6 +69,10 @@ jobs:
       - name: Validate Codex agents and skills
         shell: bash
         run: node scripts/validate-agent-config.mjs
+
+      - name: Test agent workflow routing
+        shell: bash
+        run: node scripts/agent-orchestrator-test.mjs
 
       - name: Run smoke test
         shell: bash

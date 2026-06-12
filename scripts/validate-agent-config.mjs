@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
@@ -11,17 +11,31 @@ const expectedAgents = new Set([
   "reviewer",
   "tester",
 ]);
+const expectedAgentProfiles = new Map([
+  ["developer", { model: "gpt-5.4", effort: "medium" }],
+  ["documentation", { model: "gpt-5.4-mini", effort: "low" }],
+  ["orchestrator", { model: "gpt-5.4-mini", effort: "low" }],
+  ["product_owner", { model: "gpt-5.4-mini", effort: "medium" }],
+  ["refactor", { model: "gpt-5.5", effort: "high" }],
+  ["reviewer", { model: "gpt-5.4", effort: "medium" }],
+  ["tester", { model: "gpt-5.4-mini", effort: "medium" }],
+]);
 const expectedSkills = new Set([
   "acceptance-review",
   "backlog-refinement",
   "budget-control",
+  "compact-handoff",
   "debug",
   "decision-record",
   "definition-of-ready",
   "dev-summary",
   "github-backlog-publishing",
+  "github-documentation-publishing",
+  "github-review-publishing",
+  "github-workflow-publishing",
   "handoff-package",
   "refactoring",
+  "workflow-routing",
   "write-epic-descriptions",
   "write-feature-descriptions",
   "write-user-stories",
@@ -30,6 +44,8 @@ const expectedSkills = new Set([
 await validateConfig();
 await validateAgents();
 await validateSkills();
+await validateStructure();
+await validateInstructionOwnership();
 
 console.log(
   `Agent config passed: ${expectedAgents.size} agents and ${expectedSkills.size} skills are valid.`,
@@ -41,6 +57,10 @@ async function validateConfig() {
   assert(config.includes("[agents]"), ".codex/config.toml mist [agents]");
   assert(/max_threads\s*=\s*\d+/.test(config), "agents.max_threads ontbreekt");
   assert(/max_depth\s*=\s*\d+/.test(config), "agents.max_depth ontbreekt");
+  assert(
+    /job_max_runtime_seconds\s*=\s*\d+/.test(config),
+    "agents.job_max_runtime_seconds ontbreekt",
+  );
 }
 
 async function validateAgents() {
@@ -52,6 +72,9 @@ async function validateAgents() {
     const content = await read(path.join(".codex", "agents", file));
     const name = extractTomlString(content, "name", file);
     const description = extractTomlString(content, "description", file);
+    const model = extractTomlString(content, "model", file);
+    const effort = extractTomlString(content, "model_reasoning_effort", file);
+    const expectedProfile = expectedAgentProfiles.get(name);
 
     assert(
       new RegExp(
@@ -62,6 +85,12 @@ async function validateAgents() {
     );
     assert(description.trim().length >= 30, `${file} heeft een te korte description`);
     assert(path.parse(file).name === name, `${file} moet overeenkomen met name=${name}`);
+    assert(expectedProfile, `${file} heeft geen verwacht modelprofiel`);
+    assert(model === expectedProfile.model, `${file} verwacht model ${expectedProfile.model}`);
+    assert(
+      effort === expectedProfile.effort,
+      `${file} verwacht reasoning effort ${expectedProfile.effort}`,
+    );
     assert(!found.has(name), `Dubbele agentnaam: ${name}`);
     found.add(name);
   }
@@ -102,6 +131,135 @@ async function validateSkills() {
   assertExpected(found, expectedSkills, "skill");
 }
 
+async function validateInstructionOwnership() {
+  const agents = await Promise.all(
+    [...expectedAgents].map((name) =>
+      read(path.join(".codex", "agents", `${name}.toml`))),
+  );
+  const joinedAgents = agents.join("\n");
+
+  for (const phrase of [
+    "CODE_QUALITY.md",
+    "CODE_SECURITY.md",
+    "docs/DOCUMENTATION.md",
+    "docs/PROJECT_STRUCTURE.md",
+    "docs/engineering/code-quality.md",
+    "docs/engineering/code-security.md",
+    "docs/engineering/project-structure.md",
+    "docs/engineering/project-structure.svg",
+    "Push of merge",
+    "Push of merge nooit",
+    "Voeg geen dependencies",
+  ]) {
+    assert(
+      !joinedAgents.includes(phrase),
+      `Agent-TOML dupliceert globale of domeininstructie: ${phrase}`,
+    );
+  }
+
+  const agentsInstructions = await read("AGENTS.md");
+  for (const requiredSource of [
+    "docs/engineering/code-quality.md",
+    "docs/engineering/code-security.md",
+    "docs/engineering/project-structure.md",
+    "docs/DOCUMENTATION.md",
+    "docs/agents/README.md",
+  ]) {
+    assert(
+      agentsInstructions.includes(requiredSource),
+      `AGENTS.md contextmatrix mist ${requiredSource}`,
+    );
+  }
+
+  const compactHandoff = await read(
+    path.join(".agents", "skills", "compact-handoff", "SKILL.md"),
+  );
+  assert(
+    compactHandoff.includes("Context sources:"),
+    "compact-handoff mist Context sources",
+  );
+
+  const instructionFiles = [
+    "AGENTS.md",
+    ".github/workflows/ci.yml",
+    "docs/DOCUMENTATION.md",
+    "docs/HUMAN_GUIDE.md",
+    "docs/ANGULAR_MIGRATION_PREPARATION.md",
+    ...(await collectFiles(".codex")),
+    ...(await collectFiles(".agents")),
+    ...(await collectFiles("docs/agents")),
+    ...(await collectFiles("docs/engineering")),
+  ];
+  const instructionCorpus = (
+    await Promise.all(instructionFiles.map((file) => read(file)))
+  ).join("\n");
+
+  for (const stalePath of [
+    "ai-agents/",
+    "ai/ai_instructions/",
+    "ai/README.ai.md",
+    "docs/PROJECT_STRUCTURE.md",
+    "docs/agents/AGENT_HANDBOOK.md",
+    "docs/agents/AGENT_WORKFLOW_V2_PLAN.md",
+    "docs/agents/agent-collaboration.md",
+  ]) {
+    assert(
+      !instructionCorpus.includes(stalePath),
+      `Agentdocumentatie bevat verouderd pad: ${stalePath}`,
+    );
+  }
+
+  for (const staleProjectPhrase of ["SWR 4.5%", "Vite+vanilla", "EUR;"]) {
+    assert(
+      !instructionCorpus.includes(staleProjectPhrase),
+      `Instructies bevatten projectvreemde regel: ${staleProjectPhrase}`,
+    );
+  }
+}
+
+async function validateStructure() {
+  const requiredFiles = [
+    "docs/agents/README.md",
+    "docs/agents/collaboration.md",
+    "docs/agents/workflows/fast-delivery.md",
+    "docs/agents/workflows/full-delivery.md",
+    "docs/agents/workflows/github-orchestration.md",
+    "docs/agents/workflows/refactoring.md",
+    "docs/agents/decisions/workflow-v2.md",
+    "docs/agents/decisions/refactor-agent-research.md",
+    "docs/engineering/code-quality.md",
+    "docs/engineering/code-security.md",
+    "docs/engineering/project-structure.md",
+  ];
+  for (const file of requiredFiles) {
+    assert(await exists(file), `Verplicht structuurpad ontbreekt: ${file}`);
+  }
+
+  for (const forbiddenRoot of ["ai", "ai-agents"]) {
+    assert(
+      !(await exists(forbiddenRoot)),
+      `Legacy agentmap moet verwijderd zijn: ${forbiddenRoot}`,
+    );
+  }
+
+  for (const directory of [".codex", ".agents", "docs/agents", "docs/engineering"]) {
+    const emptyDirectories = await findEmptyDirectories(directory);
+    assert(
+      emptyDirectories.length === 0,
+      `Lege agentmappen gevonden: ${emptyDirectories.join(", ")}`,
+    );
+  }
+
+  for (const file of await collectFiles("docs/agents")) {
+    const basename = path.basename(file);
+    assert(
+      basename === "README.md"
+        || /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/.test(basename),
+      `Agentdocument gebruikt geen lowercase kebab-case: ${file}`,
+    );
+  }
+}
+
 function parseFrontmatter(content, skillName) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   assert(match, `${skillName}: ongeldige YAML-frontmatter`);
@@ -138,9 +296,46 @@ async function read(relativePath) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
+async function exists(relativePath) {
+  try {
+    await access(path.join(root, relativePath));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function collectFiles(relativeDirectory) {
+  const directory = path.join(root, relativeDirectory);
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const relativePath = path.join(relativeDirectory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await collectFiles(relativePath));
+    } else {
+      files.push(relativePath);
+    }
+  }
+  return files;
+}
+
+async function findEmptyDirectories(relativeDirectory) {
+  const directory = path.join(root, relativeDirectory);
+  const entries = await readdir(directory, { withFileTypes: true });
+  const empty = entries.length === 0 ? [relativeDirectory] : [];
+
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      empty.push(...await findEmptyDirectories(path.join(relativeDirectory, entry.name)));
+    }
+  }
+  return empty;
+}
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
 }
-

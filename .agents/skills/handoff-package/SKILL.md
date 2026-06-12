@@ -5,6 +5,10 @@ description: Maak een complete overdracht wanneer werk naar een andere agent, ei
 
 # Handoff Package
 
+Gebruik voor uitvoerende subagents standaard `$compact-handoff`. Gebruik dit
+uitgebreide pakket alleen bij Full Delivery, scopewijziging, blockerherstart of
+overdracht aan een menselijke eigenaar.
+
 Gebruik deze structuur:
 
 ## Handoff Target
@@ -43,4 +47,3 @@ Gebruik `$dev-summary`.
 
 Verberg geen productbeslissingen in de overdracht. De ontvangende agent moet
 zonder aanvullende interpretatie kunnen starten.
-

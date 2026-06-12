@@ -1,0 +1,199 @@
+import assert from "node:assert/strict";
+import {
+  advanceState,
+  buildPlan,
+  determineRoute,
+} from "./agent-orchestrator.mjs";
+
+const fastIssue = {
+  issue: {
+    number: 21,
+    title: "Bug: spelknoppen reageren niet",
+    body: "Herstel bestaand gedrag.",
+    labels: [{ name: "bug" }],
+  },
+};
+const fullIssue = {
+  issue: {
+    number: 22,
+    title: "Feature: nieuw voortgangsscherm",
+    body: "Voeg nieuwe productfunctionaliteit toe.",
+    labels: [{ name: "feature" }],
+  },
+};
+const readyPull = {
+  pull_request: {
+    number: 23,
+    title: "Fix navigation",
+    state: "open",
+    draft: false,
+    head: { sha: "abc123" },
+    labels: [{ name: "route:fast" }],
+  },
+};
+
+assert.equal(determineRoute({
+  event: fastIssue,
+  eventName: "issues",
+  workItem: fastIssue.issue,
+  labels: ["bug"],
+}), "fast");
+assert.equal(determineRoute({
+  event: fullIssue,
+  eventName: "issues",
+  workItem: fullIssue.issue,
+  labels: ["feature"],
+}), "full");
+
+const fastPlan = buildPlan({ event: fastIssue, eventName: "issues" });
+assert.equal(fastPlan.state, "state:fast-triage");
+assert.deepEqual(fastPlan.nextAgents, ["developer"]);
+
+const fullPlan = buildPlan({ event: fullIssue, eventName: "issues" });
+assert.equal(fullPlan.state, "state:full-refinement");
+assert.deepEqual(fullPlan.nextAgents, ["po"]);
+
+const pullPlan = buildPlan({ event: readyPull, eventName: "pull_request" });
+assert.equal(pullPlan.state, "state:fast-verification");
+assert.deepEqual(pullPlan.nextAgents, ["tester", "reviewer"]);
+assert.equal(pullPlan.sha, "abc123");
+
+const approvalPlan = buildPlan({
+  event: {
+    issue: {
+      number: 23,
+      title: "Fix navigation",
+      labels: [{ name: "route:fast" }, { name: "state:fast-approval" }],
+    },
+    comment: {
+      body: "APPROVE FEATURE",
+      author_association: "OWNER",
+    },
+  },
+  eventName: "issue_comment",
+});
+assert.equal(approvalPlan.state, "state:ready-for-merge");
+
+const unauthorizedApprovalPlan = buildPlan({
+  event: {
+    issue: {
+      number: 23,
+      title: "Fix navigation",
+      labels: [{ name: "route:fast" }, { name: "state:fast-approval" }],
+    },
+    comment: {
+      body: "APPROVE FEATURE",
+      author_association: "NONE",
+    },
+  },
+  eventName: "issue_comment",
+});
+assert.equal(unauthorizedApprovalPlan.state, "state:fast-approval");
+
+assert.equal(advanceState("state:fast-verification", [
+  "evidence:test-passed",
+  "evidence:review-passed",
+  "evidence:documentation-none",
+]), "state:fast-approval");
+assert.equal(advanceState("state:full-verification", [
+  "evidence:test-passed",
+  "evidence:review-passed",
+]), "state:full-documentation");
+assert.equal(advanceState("state:full-documentation", [
+  "evidence:documentation-complete",
+]), "state:full-acceptance");
+assert.equal(advanceState("state:full-acceptance", [
+  "evidence:product-accepted",
+]), "state:full-approval");
+
+const synchronizedPull = buildPlan({
+  event: {
+    action: "synchronize",
+    pull_request: {
+      number: 24,
+      title: "Updated fix",
+      state: "open",
+      draft: false,
+      head: { sha: "new123" },
+      labels: [
+        { name: "route:fast" },
+        { name: "state:fast-verification" },
+        { name: "evidence:test-passed" },
+        { name: "evidence:review-passed" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(synchronizedPull.state, "state:fast-verification");
+assert.equal(
+  synchronizedPull.labels.some((label) => label.startsWith("evidence:")),
+  false,
+);
+
+const approvedReview = buildPlan({
+  event: {
+    action: "submitted",
+    pull_request: {
+      number: 25,
+      title: "Reviewed fix",
+      state: "open",
+      draft: false,
+      head: { sha: "review123" },
+      labels: [
+        { name: "route:fast" },
+        { name: "state:fast-verification" },
+        { name: "evidence:test-passed" },
+        { name: "evidence:changes-required" },
+        { name: "evidence:documentation-none" },
+      ],
+    },
+    review: { state: "approved" },
+  },
+  eventName: "pull_request_review",
+});
+assert.equal(approvedReview.state, "state:fast-approval");
+assert.equal(approvedReview.labels.includes("evidence:review-passed"), true);
+assert.equal(approvedReview.labels.includes("evidence:changes-required"), false);
+
+const successfulCi = buildPlan({
+  event: {
+    workflow_run: {
+      status: "completed",
+      conclusion: "success",
+      head_sha: "ci123",
+      pull_requests: [{
+        number: 26,
+        title: "CI fix",
+        state: "open",
+        draft: false,
+        head: { sha: "ci123" },
+        labels: [
+          { name: "route:full" },
+          { name: "state:full-verification" },
+          { name: "evidence:review-passed" },
+        ],
+      }],
+    },
+  },
+  eventName: "workflow_run",
+});
+assert.equal(successfulCi.state, "state:full-documentation");
+assert.equal(successfulCi.labels.includes("evidence:test-passed"), true);
+
+const stalePlan = buildPlan({
+  event: {
+    ref: "refs/heads/feature/old",
+    after: "new-sha",
+  },
+  eventName: "push",
+  existingPullRequests: [{
+    state: "closed",
+    merged_at: "2026-06-11T00:00:00Z",
+    head: { sha: "old-sha" },
+  }],
+});
+assert.equal(stalePlan.state, "state:blocked");
+assert.equal(stalePlan.staleBranch, true);
+
+console.log("Agent orchestrator tests passed.");

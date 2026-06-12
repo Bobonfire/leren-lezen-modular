@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compact Handoff"
+  short_description: "Maak een begrensd agenthandoffpakket"
+  default_prompt: "Use $compact-handoff to prepare this agent handoff."
