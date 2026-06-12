@@ -5,14 +5,15 @@
 Lees voor iedere taak in deze volgorde:
 
 1. `AGENTS.md`
-2. `ai/README.ai.md`
-3. `ai/ai_instructions/ai-codex-instructions.md`
-4. `ai/ai_instructions/CODE_QUALITY.md`
-5. `ai/ai_instructions/CODE_SECURITY.md`
-6. `docs/PROJECT_STRUCTURE.md`
-7. `docs/DOCUMENTATION.md`
-8. De definitie van je agent in `ai-agents/agents/`
-9. De relevante workflow in `ai-agents/workflows/`
+2. De automatisch geladen agentdefinitie uit `.codex/agents/`
+3. Alleen de relevante native skills uit `.agents/skills/`
+4. `ai/README.ai.md`
+5. `ai/ai_instructions/ai-codex-instructions.md`
+6. `ai/ai_instructions/CODE_QUALITY.md`
+7. `ai/ai_instructions/CODE_SECURITY.md`
+8. `docs/PROJECT_STRUCTURE.md`
+9. `docs/DOCUMENTATION.md`
+10. De relevante workflow in `ai-agents/workflows/`
 
 Meld bij handoff welke instructiebestanden daadwerkelijk zijn gebruikt. Wanneer
 bronnen botsen, volg de meest specifieke actuele projectinstructie en maak het
@@ -23,6 +24,7 @@ conflict zichtbaar.
 | Pad | Betekenis |
 | --- | --- |
 | `index.html` | Root-entrypoint voor statische hosting |
+| `public/app.js` | Gegenereerde browserbundle; niet handmatig wijzigen |
 | `public/styles.css` | Globale visuele stijl en responsive gedrag |
 | `src/main.js` | Startup, home-toolbar en navigatiewiring |
 | `src/router.js` | Wisselt tussen home en modeschermen |
@@ -31,7 +33,9 @@ conflict zichtbaar.
 | `src/data/` | Statische leerinhoud per modus |
 | `src/ui/` | Gedeelde DOM-, overlay-, confetti- en prijzenkastfuncties |
 | `scripts/` | Lokale en CI-controles, inclusief orchestration dry-run |
-| `ai-agents/` | Agentrollen, shared skills en deliveryworkflows |
+| `.codex/agents/` | Native, automatisch laadbare custom agents |
+| `.agents/skills/` | Native, automatisch vindbare herbruikbare skills |
+| `ai-agents/workflows/` | Delivery- en orchestration state machines |
 | `docs/` | Blijvende agent- en mensgerichte projectkennis |
 
 Voor Angular-migratieonderzoek geldt aanvullend
@@ -42,7 +46,10 @@ actieve Angular-runtime.
 
 ```mermaid
 flowchart LR
-    Entry["index.html"] --> Main["src/main.js"]
+    Sources["src/**/*.js"] --> Build["scripts/build-browser-bundle.mjs"]
+    Build --> Bundle["public/app.js"]
+    Entry["index.html"] --> Bundle
+    Bundle --> Main["src/main.js startup"]
     Main --> Router["src/router.js"]
     Main --> Modes["src/modes/*"]
     Modes --> Core["src/core/*"]
@@ -50,6 +57,10 @@ flowchart LR
     Modes --> UI["src/ui/*"]
     Core --> Browser["localStorage, timers, Web Speech API"]
 ```
+
+Na een wijziging onder `src/` moet `node scripts/build-browser-bundle.mjs`
+worden uitgevoerd. `node scripts/build-browser-bundle.mjs --check` bewaakt in
+CI dat `public/app.js` overeenkomt met de modulaire broncode.
 
 ## Documenten En Artefacten
 
@@ -59,9 +70,27 @@ flowchart LR
 | `docs/PROJECT_STRUCTURE.md` | Bestandsstructuur en moduleverklaring |
 | `docs/DOCUMENTATION.md` | Impactcheck en scheiding tussen doelgroepen |
 | `docs/agents/agent-collaboration.md` | Compacte agent deliveryflow |
-| `ai-agents/skills/shared-skills.md` | Dev Summary en Decision Record |
+| `.agents/skills/dev-summary/SKILL.md` | Verplichte handoffsamenvatting |
+| `.agents/skills/decision-record/SKILL.md` | Betekenisvolle beslissingen |
+| `.codex/agents/*.toml` | Scope en gedrag per native agent |
 | `ai-agents/workflows/feature-delivery-workflow.md` | Volledige state machine |
 | `ai-agents/workflows/github-orchestration-workflow.md` | GitHub-labels en events |
+
+## Native Agentrollen
+
+| Agentnaam | Bestand | Schrijfrechten |
+| --- | --- | --- |
+| `orchestrator` | `.codex/agents/orchestrator.toml` | Read-only; coordineert proces |
+| `product_owner` | `.codex/agents/product_owner.toml` | Read-only; beheert productintentie |
+| `developer` | `.codex/agents/developer.toml` | Workspace-write |
+| `tester` | `.codex/agents/tester.toml` | Read-only |
+| `reviewer` | `.codex/agents/reviewer.toml` | Read-only |
+| `documentation` | `.codex/agents/documentation.toml` | Workspace-write voor documentatie |
+| `refactor` | `.codex/agents/refactor.toml` | Workspace-write binnen refactorscope |
+
+Codex start subagents alleen na een expliciet verzoek. De Orchestrator kiest dus
+geen agent door alleen een bestand te vinden; de parentthread moet de gewenste
+agent expliciet laten spawnen.
 
 ## Agentflow
 

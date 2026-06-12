@@ -1,0 +1,4 @@
+interface:
+  display_name: "Definition of Ready"
+  short_description: "Controleer of werk direct uitvoerbaar is"
+  default_prompt: "Use $definition-of-ready to assess whether this work item is ready."

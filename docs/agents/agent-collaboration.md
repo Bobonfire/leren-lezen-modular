@@ -41,6 +41,11 @@ flowchart LR
   mensgerichte documentatie als aparte informatielagen actueel.
 - **Bob** bepaalt de productrichting en geeft expliciete goedkeuring.
 
+De uitvoerbare Codex-definities staan in `.codex/agents/`. De herbruikbare
+workflows die rollen expliciet kunnen activeren staan in `.agents/skills/`.
+De Markdown-workflows onder `ai-agents/workflows/` blijven de uitgebreide
+state-machinebron.
+
 ## Refactorroute
 
 Refactorwerk gebruikt een afzonderlijke route:

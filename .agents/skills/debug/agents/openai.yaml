@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debug"
+  short_description: "Onderzoek en herstel reproduceerbare defecten"
+  default_prompt: "Use $debug to reproduce, isolate, fix, and verify this defect."

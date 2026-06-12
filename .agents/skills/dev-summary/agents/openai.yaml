@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dev Summary"
+  short_description: "Maak een consistente overdrachtssamenvatting"
+  default_prompt: "Use $dev-summary to prepare the required handoff summary."

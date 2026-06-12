@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Feature Descriptions"
+  short_description: "Beschrijf features voor story decomposition"
+  default_prompt: "Use $write-feature-descriptions to define this approved feature."
