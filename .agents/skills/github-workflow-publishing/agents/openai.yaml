@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Workflow Publishing"
+  short_description: "Werk centrale workflowstatus op GitHub bij"
+  default_prompt: "Use $github-workflow-publishing to update workflow state."

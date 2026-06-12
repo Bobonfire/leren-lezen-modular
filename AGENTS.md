@@ -1,55 +1,58 @@
 # AGENTS.md
 
-Algemene werkafspraken voor AI coding agents in dit project.
+Globale repositoryregels voor mensen en AI-agents. Lees niet standaard alle
+projectdocumentatie: laad alleen bronnen die volgens de contextmatrix nodig zijn.
 
-## Instructiebronnen
+## Instructiehiërarchie
 
-Lees voor iedere wijziging eerst de projectinstructies:
+Bij conflict geldt, van hoog naar laag:
 
-- `.codex/agents/<rol>.toml` wanneer je als native custom agent bent gestart
-- relevante native skills onder `.agents/skills/`
-- `ai/README.ai.md`
-- `ai/ai_instructions/ai-codex-instructions.md`
-- `ai/ai_instructions/CODE_QUALITY.md`
-- `ai/ai_instructions/CODE_SECURITY.md`
-- `docs/PROJECT_STRUCTURE.md`
-- `docs/DOCUMENTATION.md`
-- `docs/agents/AGENT_HANDBOOK.md`
-- `docs/CONTRIBUTING.md` wanneer de wijziging proces, review of samenwerking raakt.
+1. expliciete gebruikersopdracht;
+2. dit bestand en eventuele geneste `AGENTS.md`-bestanden;
+3. het rolcontract in `.codex/agents/<rol>.toml`;
+4. de actieve skill in `.agents/skills/<naam>/SKILL.md`;
+5. exact één routeworkflow onder `docs/agents/workflows/`;
+6. conditioneel geladen domeindocumentatie.
 
-Meld in je antwoord welke instructiebestanden je hebt gebruikt.
+Procedures horen in skills of workflows. Feitelijke architectuur, security- en
+kwaliteitsregels horen niet in prompts of workflows te worden gedupliceerd.
 
-## Native Codex-structuur
+## Altijd Laden
 
-- `.codex/agents/` is de bron van waarheid voor uitvoerbare custom agents.
-- `.agents/skills/<naam>/SKILL.md` is de bron van waarheid voor herbruikbare
-  Codex-workflows.
-- `ai-agents/workflows/` bevat blijvende delivery- en orchestrationprocessen,
-  maar definieert geen automatisch laadbare agents of skills.
-- Start subagents alleen wanneer de gebruiker daar expliciet om vraagt.
-- Houd agentrollen smal: laat review-, test- en productagents geen broncode
-  wijzigen en laat uitvoerende agents geen productscope bepalen.
+- `AGENTS.md`;
+- het automatisch gekozen rolcontract;
+- het compacte handoffpakket met scope, SHA, bewijs en contextbronnen.
 
-## Werkwijze
+## Contextmatrix
 
-- Werk lokaal en maak wijzigingen klein, gericht en omkeerbaar.
-- Raak geen bestaande wijzigingen van anderen terug zonder expliciete opdracht.
-- Voeg geen dependencies toe zonder expliciete goedkeuring.
-- Update documentatie wanneer structuur, gedrag of workflow verandert.
-- Voer bij iedere wijziging een documentatie-impactcheck uit volgens `docs/DOCUMENTATION.md`.
-- Werk agentgerichte en mensgerichte documentatie apart bij; een codecommentaar of PR-samenvatting vervangt geen gebruikersdocumentatie.
-- Houd UI-wijzigingen toegankelijk, responsief en consistent met de bestaande vanilla HTML/CSS/JS aanpak.
-- Gebruik Nederlands voor projectdocumentatie en issue/PR communicatie, tenzij bestaande code of externe tooling Engels vereist.
+| Signaal in taak of diff | Aanvullende bron |
+| --- | --- |
+| Appcode, HTML, CSS, JavaScript of tooling | `docs/engineering/code-quality.md` |
+| Input, DOM-sinks, opslag, secrets, rechten, dependency of externe service | `docs/engineering/code-security.md` |
+| Modulegrens, entrypoint, buildflow of architectuurwijziging | `docs/engineering/project-structure.md` |
+| Zichtbaar gedrag of gebruikersflow | `docs/HUMAN_GUIDE.md` |
+| Documentatie-impact of documentatiewijziging | `docs/DOCUMENTATION.md` |
+| Agent-, skill- of workflowwijziging | `docs/agents/README.md` |
+| Angular-migratie | `docs/ANGULAR_MIGRATION_PREPARATION.md` |
 
-## Kwaliteit en veiligheid
+De Orchestrator zet alleen toepasselijke bronnen in `Context sources` van
+`$compact-handoff`. Een subagent mag extra documentatie openen wanneer de diff
+een nieuw concreet signaal toont en vermeldt dat in zijn bewijs.
 
-- Volg `CODE_QUALITY.md` voor HTML, CSS, JavaScript en tooling.
-- Volg `CODE_SECURITY.md` voor secrets, dependencies, DOM-veiligheid en supply chain.
-- Gebruik `textContent` voor dynamische tekst en vermijd `innerHTML` met onbetrouwbare input.
-- Test relevante paden voordat werk als klaar wordt gemeld.
+## Globale Guardrails
 
-## Git-afspraken
+- Houd wijzigingen klein en behoud niet-gerelateerde worktreewijzigingen.
+- Voeg geen dependency toe zonder expliciete goedkeuring.
+- Push niet zonder expliciete toestemming; merge alleen op expliciete opdracht.
+- Test relevante paden en rapporteer niet-uitgevoerde checks.
+- Gebruik Nederlands voor projectdocumentatie en GitHub-communicatie, tenzij
+  code of externe tooling Engels vereist.
+- Meld in de eindhandoff welke conditionele instructiebronnen zijn gebruikt.
 
-- Niet pushen zonder expliciete toestemming.
-- Niet mergen zonder expliciete merge-opdracht.
-- Rapporteer gewijzigde bestanden, uitgevoerde checks en eventuele niet-uitgevoerde checks.
+## Reviewrichtlijnen
+
+- Review de PR-diff en alleen concrete afhankelijkheden daarvan.
+- Prioriteer correctness, security, privacy, regressies en ontbrekende tests.
+- Controleer bundleversheid bij wijzigingen onder `src/`.
+- Vereis Tester- en Reviewerbewijs op dezelfde head-SHA.
+- Een agentreview vervangt geen menselijke mergeapproval.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Routing"
+  short_description: "Kies Fast Track of Full Delivery"
+  default_prompt: "Use $workflow-routing to select the delivery route."

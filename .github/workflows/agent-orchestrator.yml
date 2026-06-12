@@ -4,6 +4,10 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 on:
+  push:
+    branches-ignore:
+      - main
+      - dev
   issues:
     types:
       - opened
@@ -19,6 +23,10 @@ on:
       - ready_for_review
       - labeled
       - unlabeled
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
   issue_comment:
     types:
       - created
@@ -33,13 +41,16 @@ permissions:
   actions: read
   checks: read
   contents: read
-  issues: read
-  pull-requests: read
+  issues: write
+  pull-requests: write
 
 jobs:
-  dry-run:
-    name: Determine next agent step
+  orchestrate:
+    name: Route and publish agent workflow state
     runs-on: ubuntu-latest
+    concurrency:
+      group: agent-orchestrator-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -50,9 +61,11 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run orchestrator dry-run
+      - name: Route workflow and update GitHub state
+        id: orchestrator
         env:
-          AGENT_ORCHESTRATOR_MODE: dry-run
+          AGENT_ORCHESTRATOR_MODE: mutate
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/agent-orchestrator.mjs

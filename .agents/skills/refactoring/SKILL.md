@@ -5,7 +5,9 @@ description: Verbeter aantoonbare onderhoudbaarheidsproblemen met kleine gedrags
 
 # Refactoring
 
-1. Lees `AGENTS.md`, geneste instructies, architectuurdocs en lokale tooling.
+1. Lees `AGENTS.md`, het handoffpakket en alleen de daarin gekozen
+   contextbronnen. Architectuurdocumentatie is verplicht wanneer modulegrenzen,
+   entrypoints of dependencyrichting wijzigen.
 2. Inspecteer de worktree en behoud niet-gerelateerde wijzigingen.
 3. Leg scope, out-of-scope, publieke contracten, zichtbaar gedrag, security,
    accessibility, dataformaten en verwachte kwaliteitswinst vast.
@@ -29,4 +31,3 @@ Lever een Refactor Report met:
 - Tester- en Reviewerbevindingen;
 - risico en rollback;
 - eventueel onderbouwd instructievoorstel voor de Developer Agent.
-

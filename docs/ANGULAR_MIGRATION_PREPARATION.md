@@ -7,15 +7,11 @@ Status: voorbereidend document voor issues #3 t/m #8. Dit document introduceert 
 ## Gebruikte instructies
 
 - `AGENTS.md`
-- `ai/README.ai.md`
-- `ai/ai_instructions/ai-codex-instructions.md`
-- `ai/ai_instructions/CODE_QUALITY.md`
-- `ai/ai_instructions/CODE_SECURITY.md`
-- `docs/PROJECT_STRUCTURE.md`
+- `docs/engineering/code-quality.md`
+- `docs/engineering/code-security.md`
+- `docs/engineering/project-structure.md`
 - `docs/CONTRIBUTING.md`
 - `.codex/agents/developer.toml`
-
-Opmerking: `ai/README.ai.md` verwijst naar `ai/instructions/quick-modes.txt`, maar dat bestand bestaat niet in deze repo. Er bestaat wel `ai/ai_instructions/quick control block`.
 
 ## #3 CPO approval and migration scope
 
@@ -95,9 +91,8 @@ Migratiekandidaten: data kan eerst als readonly TypeScript constants blijven bes
 
 ### Bekende documentatiegaps
 
-- `docs/PROJECT_STRUCTURE.md` noemt nog alleen emoji en CVC en mist clock/math.
-- `docs/PROJECT_STRUCTURE.md` zegt dat reset nog nodig is in CVC en Home; CVC mist inderdaad reset, Home heeft geen reset, clock/math hebben reset.
-- `ai/ai_instructions/ai-codex-instructions.md` bevat actuele Leren Lezen- en native Codex-instructies.
+- `docs/engineering/project-structure.md` noemt nog alleen emoji en CVC en mist clock/math.
+- `docs/engineering/project-structure.md` zegt dat reset nog nodig is in CVC en Home; CVC mist inderdaad reset, Home heeft geen reset, clock/math hebben reset.
 - README is zeer beperkt en documenteert geen lokale start-, test- of buildstappen.
 - Er is geen root `package.json`, `package-lock.json` of Angular/tooling-configuratie.
 

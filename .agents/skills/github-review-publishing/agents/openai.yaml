@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Review Publishing"
+  short_description: "Publiceer formeel PR-reviewbewijs"
+  default_prompt: "Use $github-review-publishing to publish this PR review."

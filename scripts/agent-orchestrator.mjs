@@ -1,132 +1,566 @@
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const STATE_LABEL_PREFIX = "state:";
 const APPROVAL_PHRASE = "APPROVE FEATURE";
+const COMMENT_MARKER = "<!-- agent-workflow-state -->";
+const MANAGED_LABEL_PREFIXES = ["route:", "state:", "agent:", "evidence:"];
+const LABEL_COLORS = {
+  "route:fast": "0E8A16",
+  "route:full": "5319E7",
+  "state:fast-triage": "FBCA04",
+  "state:fast-development": "1D76DB",
+  "state:fast-verification": "0052CC",
+  "state:fast-documentation": "006B75",
+  "state:fast-approval": "B60205",
+  "state:full-refinement": "FBCA04",
+  "state:full-development": "1D76DB",
+  "state:full-verification": "0052CC",
+  "state:full-documentation": "006B75",
+  "state:full-acceptance": "D4C5F9",
+  "state:full-approval": "B60205",
+  "state:ready-for-merge": "0E8A16",
+  "state:blocked": "B60205",
+  "state:done": "0E8A16",
+  "agent:po": "C2E0C6",
+  "agent:developer": "C2E0C6",
+  "agent:tester": "C2E0C6",
+  "agent:reviewer": "C2E0C6",
+  "agent:documentation": "C2E0C6",
+  "agent:human-approval-required": "F9D0C4",
+  "evidence:test-passed": "0E8A16",
+  "evidence:review-passed": "0E8A16",
+  "evidence:changes-required": "B60205",
+  "evidence:documentation-none": "BFDADC",
+  "evidence:documentation-complete": "0E8A16",
+  "evidence:product-accepted": "0E8A16",
+};
+const EVIDENCE_LABELS = Object.keys(LABEL_COLORS).filter((label) =>
+  label.startsWith("evidence:"),
+);
 
-const stateActions = new Map([
-  ["state:feature-proposed", "Start PO Agent for refinement."],
-  ["state:ready-for-refinement", "Start PO Agent for backlog refinement."],
-  ["state:ready-for-development", "Start Developer Agent."],
-  ["state:ready-for-testing", "Start Tester Agent when a PR exists and CI is green."],
-  ["state:ready-for-review", "Start Reviewer Agent when testing is non-blocking."],
-  ["state:ready-for-documentation", "Start Documentation Agent and require a documented impact outcome."],
-  ["state:ready-for-product-validation", "Start PO Agent for product validation."],
-  ["state:ready-for-cpo-approval", "Ask Bob for explicit approval."],
-  ["state:ready-for-merge", "Request merge only after explicit approval and green CI."],
-  ["state:done", "No action. Workflow is complete."],
-  ["state:blocked", "Escalate or pause until the blocker is resolved."],
-]);
+export function buildPlan({
+  event = {},
+  eventName = "manual",
+  existingPullRequests = [],
+} = {}) {
+  const workItem = getWorkItem(event);
+  const labels = getLabels(workItem);
+  const evidenceLabels = getEvidenceLabels({ event, eventName, labels });
+  const effectiveLabels = [
+    ...labels.filter((label) => !label.startsWith("evidence:")),
+    ...evidenceLabels,
+  ];
+  const route = determineRoute({ event, eventName, workItem, labels: effectiveLabels });
+  const staleBranch = detectStaleBranch({ event, eventName, existingPullRequests });
+  const approvalDetected = hasAuthorizedApprovalComment(event);
+  const state = determineState({
+    eventName,
+    workItem,
+    labels: effectiveLabels,
+    route,
+    approvalDetected,
+    staleBranch,
+  });
+  const next = determineNext({ state, route, approvalDetected });
+  const sha = getSha(event, workItem);
+  const number = workItem.number || event.workflow_run?.pull_requests?.[0]?.number || null;
 
-const eventName = process.env.GITHUB_EVENT_NAME || "manual";
-const eventPath = process.env.GITHUB_EVENT_PATH;
-const mode = process.env.AGENT_ORCHESTRATOR_MODE || "dry-run";
+  return {
+    route,
+    state,
+    nextAction: next.action,
+    nextAgents: next.agents,
+    labels: buildDesiredLabels(route, state, next.agents, evidenceLabels),
+    approvalDetected,
+    staleBranch,
+    sha,
+    number,
+    workItem: formatWorkItem(workItem, number),
+    workflowComment: buildWorkflowComment({
+      route,
+      state,
+      sha,
+      next,
+      evidenceLabels,
+      approvalDetected,
+      staleBranch,
+    }),
+  };
+}
 
-const event = readEventPayload(eventPath);
-const workItem = getWorkItem(event);
-const labels = getLabels(workItem);
-const state = getState(labels, eventName, workItem);
-const approvalDetected = hasApprovalComment(event);
-const nextAction = getNextAction(state, eventName, approvalDetected);
+export function determineRoute({ event, eventName, workItem, labels }) {
+  if (labels.includes("route:fast")) return "fast";
+  if (labels.includes("route:full")) return "full";
 
-const summary = [
-  "# Agent Orchestrator",
-  "",
-  `Mode: ${mode}`,
-  `Event: ${eventName}`,
-  `Work item: ${formatWorkItem(workItem)}`,
-  `Detected state: ${state}`,
-  `Approval detected: ${approvalDetected ? "yes" : "no"}`,
-  "",
-  "## Next action",
-  "",
-  nextAction,
-  "",
-  "## Guardrail",
-  "",
-  "Dry-run mode does not start model calls, change labels, create pull requests, or merge code.",
-  "",
-].join("\n");
+  const text = [
+    workItem.title,
+    workItem.body,
+    event.comment?.body,
+  ].filter(Boolean).join(" ").toLowerCase();
 
-writeSummary(summary);
-console.log(summary);
+  const fullSignals = [
+    "feature",
+    "security",
+    "privacy",
+    "architect",
+    "migration",
+    "dependency",
+    "database",
+    "storage",
+    "refactor",
+    "breaking",
+  ];
 
-function readEventPayload(path) {
-  if (!path || !existsSync(path)) {
-    return {};
+  if (
+    labels.some((label) => ["feature", "security", "refactor", "architecture"].includes(label))
+    || fullSignals.some((signal) => text.includes(signal))
+  ) {
+    return "full";
   }
 
-  return JSON.parse(readFileSync(path, "utf8"));
+  if (
+    labels.some((label) => ["bug", "documentation", "maintenance", "ci"].includes(label))
+    || eventName === "pull_request"
+  ) {
+    return "fast";
+  }
+
+  return eventName === "issues" ? "full" : "fast";
+}
+
+export function determineState({
+  eventName,
+  workItem,
+  labels,
+  route,
+  approvalDetected,
+  staleBranch,
+}) {
+  if (staleBranch) return "state:blocked";
+
+  const explicitState = labels.find((label) => label.startsWith("state:"));
+  if (approvalDetected && explicitState?.endsWith("-approval")) {
+    return "state:ready-for-merge";
+  }
+  if (explicitState) {
+    return advanceState(explicitState, labels);
+  }
+
+  if (eventName === "issues") {
+    return route === "fast" ? "state:fast-triage" : "state:full-refinement";
+  }
+
+  if (eventName === "pull_request") {
+    if (workItem.merged || workItem.state === "closed") return "state:done";
+    return workItem.draft
+      ? `state:${route}-development`
+      : `state:${route}-verification`;
+  }
+
+  if (eventName === "workflow_run") {
+    return `state:${route}-verification`;
+  }
+
+  return route === "fast" ? "state:fast-triage" : "state:full-refinement";
+}
+
+export function advanceState(state, labels) {
+  if (labels.includes("evidence:changes-required")) {
+    return state.includes("full")
+      ? "state:full-development"
+      : "state:fast-development";
+  }
+
+  const verified = labels.includes("evidence:test-passed")
+    && labels.includes("evidence:review-passed");
+  if (state === "state:fast-verification" && verified) {
+    return labels.includes("evidence:documentation-none")
+      ? "state:fast-approval"
+      : "state:fast-documentation";
+  }
+  if (
+    state === "state:fast-documentation"
+    && labels.includes("evidence:documentation-complete")
+  ) {
+    return "state:fast-approval";
+  }
+  if (state === "state:full-verification" && verified) {
+    return "state:full-documentation";
+  }
+  if (
+    state === "state:full-documentation"
+    && labels.includes("evidence:documentation-complete")
+  ) {
+    return "state:full-acceptance";
+  }
+  if (
+    state === "state:full-acceptance"
+    && labels.includes("evidence:product-accepted")
+  ) {
+    return "state:full-approval";
+  }
+  return state;
+}
+
+export function determineNext({ state, route, approvalDetected }) {
+  if (state === "state:blocked") {
+    return { action: "Stop delivery and create a fresh branch from current main.", agents: [] };
+  }
+  if (state === "state:done") {
+    return { action: "No action. Workflow is complete.", agents: [] };
+  }
+  if (state === "state:ready-for-merge") {
+    return {
+      action: approvalDetected
+        ? "Human approval found. Verify required checks, then await an explicit merge command."
+        : "Await explicit human approval.",
+      agents: [],
+    };
+  }
+
+  const actions = {
+    "state:fast-triage": {
+      action: "Start Developer. Start Product Owner only when product decisions are missing.",
+      agents: ["developer"],
+    },
+    "state:fast-development": {
+      action: "Developer completes the draft PR and local evidence.",
+      agents: ["developer"],
+    },
+    "state:fast-verification": {
+      action: "Start Tester and Reviewer in parallel on the exact same PR SHA.",
+      agents: ["tester", "reviewer"],
+    },
+    "state:fast-documentation": {
+      action: "Start Documentation only when impact is agent, human, or both.",
+      agents: ["documentation"],
+    },
+    "state:fast-approval": {
+      action: "Ask Bob for explicit approval.",
+      agents: [],
+    },
+    "state:full-refinement": {
+      action: "Start Product Owner for refinement and Definition of Ready.",
+      agents: ["po"],
+    },
+    "state:full-development": {
+      action: "Start Developer or Refactor according to the approved scope.",
+      agents: ["developer"],
+    },
+    "state:full-verification": {
+      action: "Start Tester and Reviewer in parallel on the exact same PR SHA.",
+      agents: ["tester", "reviewer"],
+    },
+    "state:full-documentation": {
+      action: "Start Documentation for repository and GitHub documentation impact.",
+      agents: ["documentation"],
+    },
+    "state:full-acceptance": {
+      action: "Start Product Owner for final product acceptance.",
+      agents: ["po"],
+    },
+    "state:full-approval": {
+      action: "Ask Bob for explicit approval.",
+      agents: [],
+    },
+  };
+
+  return actions[state] || {
+    action: `No transition defined for ${state} on route ${route}.`,
+    agents: [],
+  };
+}
+
+export function detectStaleBranch({ event, eventName, existingPullRequests }) {
+  if (eventName !== "push") return false;
+  return existingPullRequests.some((pull) =>
+    pull.merged_at || pull.state === "closed",
+  );
 }
 
 function getWorkItem(payload) {
-  return payload.issue || payload.pull_request || payload.workflow_run || {};
+  return payload.issue
+    || payload.pull_request
+    || payload.workflow_run?.pull_requests?.[0]
+    || {};
 }
 
 function getLabels(item) {
-  if (!Array.isArray(item.labels)) {
-    return [];
-  }
-
+  if (!Array.isArray(item.labels)) return [];
   return item.labels
-    .map((label) => (typeof label === "string" ? label : label.name))
+    .map((label) => typeof label === "string" ? label : label.name)
     .filter(Boolean);
 }
 
-function getState(labels, currentEventName, item) {
-  const explicitState = labels.find((label) => label.startsWith(STATE_LABEL_PREFIX));
-
-  if (explicitState) {
-    return explicitState;
+function getEvidenceLabels({ event, eventName, labels }) {
+  if (eventName === "pull_request" && event.action === "synchronize") {
+    return [];
   }
 
-  if (currentEventName === "issues" && item.title) {
-    return "state:feature-proposed";
+  const evidence = new Set(labels.filter((label) => label.startsWith("evidence:")));
+  if (eventName === "pull_request_review") {
+    const reviewState = event.review?.state?.toLowerCase();
+    if (reviewState === "approved") {
+      evidence.delete("evidence:changes-required");
+      evidence.add("evidence:review-passed");
+    }
+    if (reviewState === "changes_requested") {
+      evidence.delete("evidence:review-passed");
+      evidence.add("evidence:changes-required");
+    }
+    if (event.action === "dismissed") {
+      evidence.delete("evidence:review-passed");
+      evidence.delete("evidence:changes-required");
+    }
   }
-
-  if (currentEventName === "pull_request" && item.html_url) {
-    return "state:ready-for-testing";
+  if (eventName === "workflow_run" && event.workflow_run?.status === "completed") {
+    if (event.workflow_run.conclusion === "success") {
+      evidence.add("evidence:test-passed");
+    } else {
+      evidence.delete("evidence:test-passed");
+      evidence.add("evidence:changes-required");
+    }
   }
-
-  if (currentEventName === "workflow_run") {
-    return "state:ready-for-testing";
-  }
-
-  return "state:unknown";
+  return [...evidence];
 }
 
-function hasApprovalComment(payload) {
+function hasAuthorizedApprovalComment(payload) {
   const body = payload.comment?.body;
-  return typeof body === "string" && body.trim().includes(APPROVAL_PHRASE);
+  const authorizedAssociations = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+  return typeof body === "string"
+    && body.trim() === APPROVAL_PHRASE
+    && authorizedAssociations.has(payload.comment?.author_association);
 }
 
-function getNextAction(currentState, currentEventName, approvalDetected) {
-  if (approvalDetected && currentState === "state:ready-for-merge") {
-    return "Approval phrase found. Merge may be requested after required checks are confirmed green.";
-  }
-
-  if (approvalDetected) {
-    return "Approval phrase found, but the work item is not in `state:ready-for-merge`.";
-  }
-
-  if (currentEventName === "issue_comment") {
-    return "Comment received. Re-evaluate state labels and required agent artifacts.";
-  }
-
-  return stateActions.get(currentState) || "No valid state found. Add a workflow state label or escalate to Bob.";
+function getSha(event, workItem) {
+  return workItem.head?.sha
+    || event.workflow_run?.head_sha
+    || event.pull_request?.head?.sha
+    || event.after
+    || null;
 }
 
-function formatWorkItem(item) {
-  const number = item.number ? `#${item.number}` : "unknown";
+function buildDesiredLabels(route, state, agents, evidenceLabels) {
+  return [
+    `route:${route}`,
+    state,
+    ...agents.map((agent) => `agent:${agent}`),
+    ...(state.endsWith("-approval") ? ["agent:human-approval-required"] : []),
+    ...evidenceLabels,
+  ];
+}
+
+function buildWorkflowComment({
+  route,
+  state,
+  sha,
+  next,
+  evidenceLabels,
+  approvalDetected,
+  staleBranch,
+}) {
+  const evidence = new Set(evidenceLabels);
+  const documentation = evidence.has("evidence:documentation-complete")
+    ? "complete"
+    : evidence.has("evidence:documentation-none")
+      ? "no update required"
+      : "pending";
+
+  return [
+    COMMENT_MARKER,
+    "## Agent Workflow",
+    "",
+    `- Route: \`${route}\``,
+    `- State: \`${state}\``,
+    `- Commit: \`${sha || "unknown"}\``,
+    `- CI: \`${evidence.has("evidence:test-passed") ? "pass" : "pending"}\``,
+    `- Tester: \`${evidence.has("evidence:test-passed") ? "pass" : "pending"}\``,
+    `- Reviewer: \`${evidence.has("evidence:review-passed") ? "pass" : "pending"}\``,
+    `- Documentation impact: \`${documentation}\``,
+    `- Human approval: \`${approvalDetected ? "received" : "pending"}\``,
+    `- Branch guard: \`${staleBranch ? "blocked: previously completed PR branch" : "pass"}\``,
+    "",
+    `**Next action:** ${next.action}`,
+    "",
+    `**Next agents:** ${next.agents.length ? next.agents.join(", ") : "none"}`,
+  ].join("\n");
+}
+
+function formatWorkItem(item, number) {
+  const formattedNumber = number ? `#${number}` : "unknown";
   const title = item.title || item.name || item.display_title || "unknown";
-  return `${number} ${title}`;
+  return `${formattedNumber} ${title}`;
 }
 
-function writeSummary(content) {
-  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
-
-  if (!summaryPath) {
-    return;
+async function loadExistingPullRequests(eventName, event) {
+  if (eventName !== "push" || !process.env.GITHUB_REPOSITORY || !process.env.GITHUB_TOKEN) {
+    return [];
   }
 
-  appendFileSync(summaryPath, `${content}\n`, "utf8");
+  const branch = event.ref?.replace("refs/heads/", "");
+  const owner = process.env.GITHUB_REPOSITORY.split("/")[0];
+  if (!branch) return [];
+
+  return githubRequest(
+    `/repos/${process.env.GITHUB_REPOSITORY}/pulls?state=all&head=${owner}:${encodeURIComponent(branch)}`,
+  );
+}
+
+async function publishPlan(plan, eventName) {
+  if (!process.env.GITHUB_REPOSITORY || !process.env.GITHUB_TOKEN) {
+    throw new Error("Mutation mode requires GITHUB_REPOSITORY and GITHUB_TOKEN.");
+  }
+  if (!plan.number) {
+    if (eventName === "push") return;
+    throw new Error("Mutation mode requires an issue or pull request number.");
+  }
+
+  await ensureLabels([...new Set([...plan.labels, ...EVIDENCE_LABELS])]);
+  const existingLabels = await githubRequest(
+    `/repos/${process.env.GITHUB_REPOSITORY}/issues/${plan.number}/labels`,
+  );
+  const retained = existingLabels
+    .map((label) => label.name)
+    .filter((label) => !MANAGED_LABEL_PREFIXES.some((prefix) => label.startsWith(prefix)));
+  await githubRequest(
+    `/repos/${process.env.GITHUB_REPOSITORY}/issues/${plan.number}/labels`,
+    { method: "PUT", body: { labels: [...retained, ...plan.labels] } },
+  );
+
+  const comments = await githubRequest(
+    `/repos/${process.env.GITHUB_REPOSITORY}/issues/${plan.number}/comments?per_page=100`,
+  );
+  const workflowComment = comments.find((comment) => comment.body?.includes(COMMENT_MARKER));
+  if (workflowComment) {
+    await githubRequest(
+      `/repos/${process.env.GITHUB_REPOSITORY}/issues/comments/${workflowComment.id}`,
+      { method: "PATCH", body: { body: plan.workflowComment } },
+    );
+  } else {
+    await githubRequest(
+      `/repos/${process.env.GITHUB_REPOSITORY}/issues/${plan.number}/comments`,
+      { method: "POST", body: { body: plan.workflowComment } },
+    );
+  }
+}
+
+async function ensureLabels(labels) {
+  for (const label of labels) {
+    try {
+      await githubRequest(`/repos/${process.env.GITHUB_REPOSITORY}/labels`, {
+        method: "POST",
+        body: {
+          name: label,
+          color: LABEL_COLORS[label] || "D4C5F9",
+          description: "Managed by the agent workflow orchestrator.",
+        },
+      });
+    } catch (error) {
+      if (error.status !== 422) throw error;
+    }
+  }
+}
+
+async function githubRequest(apiPath, { method = "GET", body } = {}) {
+  const response = await fetch(`https://api.github.com${apiPath}`, {
+    method,
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+      "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": "leren-lezen-agent-orchestrator",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const error = new Error(`GitHub API ${method} ${apiPath} failed: ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+function writeSummary(plan, mode, eventName) {
+  const summary = [
+    "# Agent Orchestrator",
+    "",
+    `Mode: ${mode}`,
+    `Event: ${eventName}`,
+    `Work item: ${plan.workItem}`,
+    `Route: ${plan.route}`,
+    `State: ${plan.state}`,
+    `Commit: ${plan.sha || "unknown"}`,
+    `Approval detected: ${plan.approvalDetected ? "yes" : "no"}`,
+    `Branch guard: ${plan.staleBranch ? "blocked" : "pass"}`,
+    "",
+    "## Next action",
+    "",
+    plan.nextAction,
+    "",
+    `Next agents: ${plan.nextAgents.length ? plan.nextAgents.join(", ") : "none"}`,
+    "",
+  ].join("\n");
+
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`, "utf8");
+  }
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, [
+      `route=${plan.route}`,
+      `state=${plan.state}`,
+      `next_agents=${plan.nextAgents.join(",")}`,
+      `blocked=${plan.staleBranch}`,
+      "",
+    ].join("\n"), "utf8");
+  }
+  console.log(summary);
+}
+
+async function main() {
+  const eventName = process.env.GITHUB_EVENT_NAME || "manual";
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  const mode = process.env.AGENT_ORCHESTRATOR_MODE || "dry-run";
+  let event = eventPath && existsSync(eventPath)
+    ? JSON.parse(readFileSync(eventPath, "utf8"))
+    : {};
+  event = await hydrateEvent(eventName, event);
+  const existingPullRequests = await loadExistingPullRequests(eventName, event);
+  const plan = buildPlan({ event, eventName, existingPullRequests });
+
+  if (mode === "mutate") {
+    await publishPlan(plan, eventName);
+  }
+  writeSummary(plan, mode, eventName);
+
+  if (plan.staleBranch) {
+    process.exitCode = 2;
+  }
+}
+
+async function hydrateEvent(eventName, event) {
+  if (
+    eventName !== "workflow_run"
+    || !process.env.GITHUB_REPOSITORY
+    || !process.env.GITHUB_TOKEN
+  ) {
+    return event;
+  }
+
+  const number = event.workflow_run?.pull_requests?.[0]?.number;
+  if (!number) return event;
+
+  const pullRequest = await githubRequest(
+    `/repos/${process.env.GITHUB_REPOSITORY}/pulls/${number}`,
+  );
+  return { ...event, pull_request: pullRequest };
+}
+
+const isMain = process.argv[1]
+  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  await main();
 }
