@@ -13,7 +13,7 @@ Status: voorbereidend document voor issues #3 t/m #8. Dit document introduceert 
 - `ai/ai_instructions/CODE_SECURITY.md`
 - `docs/PROJECT_STRUCTURE.md`
 - `docs/CONTRIBUTING.md`
-- `ai-agents/agents/developer-agent.md`
+- `.codex/agents/developer.toml`
 
 Opmerking: `ai/README.ai.md` verwijst naar `ai/instructions/quick-modes.txt`, maar dat bestand bestaat niet in deze repo. Er bestaat wel `ai/ai_instructions/quick control block`.
 
@@ -97,7 +97,7 @@ Migratiekandidaten: data kan eerst als readonly TypeScript constants blijven bes
 
 - `docs/PROJECT_STRUCTURE.md` noemt nog alleen emoji en CVC en mist clock/math.
 - `docs/PROJECT_STRUCTURE.md` zegt dat reset nog nodig is in CVC en Home; CVC mist inderdaad reset, Home heeft geen reset, clock/math hebben reset.
-- `ai/ai_instructions/ai-codex-instructions.md` bevat nog FIRE Calculator-specifieke normen die niet passen bij Leren Lezen.
+- `ai/ai_instructions/ai-codex-instructions.md` bevat actuele Leren Lezen- en native Codex-instructies.
 - README is zeer beperkt en documenteert geen lokale start-, test- of buildstappen.
 - Er is geen root `package.json`, `package-lock.json` of Angular/tooling-configuratie.
 

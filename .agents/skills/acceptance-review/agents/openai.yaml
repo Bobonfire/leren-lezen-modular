@@ -1,0 +1,4 @@
+interface:
+  display_name: "Acceptance Review"
+  short_description: "Valideer levering tegen productcriteria"
+  default_prompt: "Use $acceptance-review to assess this delivered work."

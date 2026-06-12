@@ -20,9 +20,10 @@ De orchestration laag gebruikt:
 - `ai/ai_instructions/CODE_SECURITY.md`
 - `ai-agents/workflows/feature-delivery-workflow.md`
 - `ai-agents/workflows/refactoring-workflow.md`
-- `ai-agents/agents/orchestrator-agent.md`
-- `ai-agents/skills/shared-skills.md`
-- `ai-agents/skills/budget-control.md`
+- `.codex/agents/orchestrator.toml`
+- `.agents/skills/dev-summary/SKILL.md`
+- `.agents/skills/decision-record/SKILL.md`
+- `.agents/skills/budget-control/SKILL.md`
 
 ## GitHub Objecten
 
@@ -136,7 +137,7 @@ In dry-run mode:
 
 Budget control is apart vastgelegd als shared skill:
 
-- `ai-agents/skills/budget-control.md`
+- `.agents/skills/budget-control/SKILL.md`
 
 Die skill bepaalt:
 

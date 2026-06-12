@@ -21,7 +21,7 @@ stickers en een eventuele pauzetijd worden in de browser opgeslagen.
 
 ## Waar Klik Je?
 
-1. Open de lokale of gehoste URL van de app.
+1. Open `index.html` rechtstreeks of open de gehoste URL van de app.
 2. Kies op Home een van de vier grote leerknoppen.
 3. Klik of tik in de oefening op een woord, letter, tijd of antwoord.
 4. Gebruik `← Home` of de terugknop van de browser om terug te gaan.

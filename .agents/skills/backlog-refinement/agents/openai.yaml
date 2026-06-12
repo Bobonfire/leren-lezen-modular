@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Refinement"
+  short_description: "Maak backlogitems duidelijk en agent-ready"
+  default_prompt: "Use $backlog-refinement to refine this backlog item."

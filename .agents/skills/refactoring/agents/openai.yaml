@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactoring"
+  short_description: "Voer kleine gedragsbehoudende refactors uit"
+  default_prompt: "Use $refactoring to improve this code without changing behavior."

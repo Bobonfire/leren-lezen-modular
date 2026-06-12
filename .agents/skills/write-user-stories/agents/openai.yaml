@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write User Stories"
+  short_description: "Schrijf agent-ready user stories en criteria"
+  default_prompt: "Use $write-user-stories to turn this request into an agent-ready story."

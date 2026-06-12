@@ -1,0 +1,4 @@
+interface:
+  display_name: "Budget Control"
+  short_description: "Controleer budget en approval voor agentruns"
+  default_prompt: "Use $budget-control to assess whether this agent action is allowed."
