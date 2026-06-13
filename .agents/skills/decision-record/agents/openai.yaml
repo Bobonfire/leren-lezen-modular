@@ -1,0 +1,4 @@
+interface:
+  display_name: "Decision Record"
+  short_description: "Leg betekenisvolle beslissingen en gevolgen vast"
+  default_prompt: "Use $decision-record to document this meaningful decision."

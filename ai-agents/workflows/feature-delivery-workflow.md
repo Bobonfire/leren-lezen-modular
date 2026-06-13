@@ -203,10 +203,52 @@ Testing completed successfully.
 ### Outcomes
 
 Approved:
--> Ready For Product Validation
+-> Ready For Documentation
 
 Changes Required:
 -> Back To Development
+
+---
+
+## State: Ready For Documentation
+
+### Owner
+
+Documentation Agent
+
+### Trigger
+
+Testing en review zijn non-blocking en de implementatie is stabiel.
+
+### Actions
+
+* Voer de documentatie-impactcheck uit `docs/DOCUMENTATION.md` uit.
+* Werk agentgerichte documentatie bij wanneer navigatie, architectuur,
+  instructies, artefacten of agentsamenwerking verandert.
+* Werk mensgerichte documentatie bij wanneer productgedrag, modules,
+  klikroutes, beperkingen of visuals veranderen.
+* Leg gemotiveerd vast wanneer geen documentatie-update nodig is.
+* Valideer links, paden en diagrammen tegen de actuele bronnen.
+
+### Exit Criteria
+
+* Impactuitkomst is `agent`, `human`, `beide` of `geen`.
+* Alle geraakte documentatie is bijgewerkt.
+* Open conflicten of gaten zijn opgelost of geescaleerd.
+
+### Outputs
+
+* Documentatie-impactrapport
+* Gewijzigde documentatie of gemotiveerde `geen impact`
+* Dev Summary
+
+### Outcomes
+
+Complete:
+-> Ready For Product Validation
+
+Blocked:
+-> Back To Development or Escalation
 
 ---
 
@@ -227,6 +269,7 @@ Review completed successfully.
 * Compare implementation to acceptance criteria.
 * Validate business value delivery.
 * Validate Definition of Done.
+* Validate dat de human documentatie het geleverde gedrag begrijpelijk beschrijft.
 
 ### Exit Criteria
 
@@ -366,3 +409,7 @@ Every workflow state must produce:
 * Relevant Decision Records
 
 No state transition may occur without these artifacts.
+
+Daarnaast moet iedere wijziging voor afronding een documentatie-impactuitkomst
+hebben. Een claim `geen documentatie-impact` is een expliciete, gemotiveerde
+uitkomst en geen overgeslagen workflowstap.

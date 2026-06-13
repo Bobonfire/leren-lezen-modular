@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Epic Descriptions"
+  short_description: "Beschrijf goedgekeurde epics op outcome-niveau"
+  default_prompt: "Use $write-epic-descriptions to describe this approved epic."

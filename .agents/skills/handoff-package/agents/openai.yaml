@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff Package"
+  short_description: "Maak een complete overdracht naar een agent"
+  default_prompt: "Use $handoff-package to prepare the next agent handoff."

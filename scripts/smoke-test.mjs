@@ -42,8 +42,8 @@ async function verifyEntry(relativePath, expectedScript, expectedStylesheet) {
   await assertFile(stylesheetPath);
 }
 
-await verifyEntry('index.html', './src/main.js', './public/styles.css');
-await verifyEntry('public/index.html', '../src/main.js', './styles.css');
+await verifyEntry('index.html', './public/app.js', './public/styles.css');
+await verifyEntry('public/index.html', './app.js', './styles.css');
 
 const styles = await readFile(path.join(root, 'public/styles.css'), 'utf8');
 for (const token of ['.toolbar', '@media (max-width: 520px)', ':focus-visible']) {

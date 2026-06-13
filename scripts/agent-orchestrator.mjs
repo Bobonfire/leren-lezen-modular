@@ -9,6 +9,7 @@ const stateActions = new Map([
   ["state:ready-for-development", "Start Developer Agent."],
   ["state:ready-for-testing", "Start Tester Agent when a PR exists and CI is green."],
   ["state:ready-for-review", "Start Reviewer Agent when testing is non-blocking."],
+  ["state:ready-for-documentation", "Start Documentation Agent and require a documented impact outcome."],
   ["state:ready-for-product-validation", "Start PO Agent for product validation."],
   ["state:ready-for-cpo-approval", "Ask Bob for explicit approval."],
   ["state:ready-for-merge", "Request merge only after explicit approval and green CI."],

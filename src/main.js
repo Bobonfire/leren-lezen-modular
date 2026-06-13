@@ -3,7 +3,7 @@ import { $ } from './ui/dom.js';
 import { state, subscribe, toggleAudio, resetSession } from './core/state.js';
 import { renderTrophyCase, setNextText } from './ui/trophy.js';
 import { nextThreshold } from './core/rewards.js';
-import { show as showScreen } from './router.js';
+import { showScreen } from './router.js';
 import { mountEmoji } from './modes/emoji.js';
 import { mountCVC } from './modes/cvc.js';
 import { mountClock } from './modes/clock.js';

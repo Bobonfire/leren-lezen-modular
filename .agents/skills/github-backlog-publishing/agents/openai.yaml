@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Backlog Publishing"
+  short_description: "Publiceer goedgekeurde stories naar GitHub"
+  default_prompt: "Use $github-backlog-publishing to publish this approved ready story."

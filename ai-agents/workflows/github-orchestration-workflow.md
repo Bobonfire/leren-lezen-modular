@@ -19,9 +19,11 @@ De orchestration laag gebruikt:
 - `ai/ai_instructions/CODE_QUALITY.md`
 - `ai/ai_instructions/CODE_SECURITY.md`
 - `ai-agents/workflows/feature-delivery-workflow.md`
-- `ai-agents/agents/orchestrator-agent.md`
-- `ai-agents/skills/shared-skills.md`
-- `ai-agents/skills/budget-control.md`
+- `ai-agents/workflows/refactoring-workflow.md`
+- `.codex/agents/orchestrator.toml`
+- `.agents/skills/dev-summary/SKILL.md`
+- `.agents/skills/decision-record/SKILL.md`
+- `.agents/skills/budget-control/SKILL.md`
 
 ## GitHub Objecten
 
@@ -41,10 +43,18 @@ Labels:
 
 - `agent:orchestrate` activeert orchestration voor een issue of PR.
 - `state:feature-proposed`
+- `state:refactor-proposed`
+- `state:ready-for-refactor-baseline`
+- `state:ready-for-refactoring`
+- `state:ready-for-refactor-testing`
+- `state:ready-for-refactor-review`
+- `state:ready-for-refactor-documentation`
+- `state:ready-for-refactor-approval`
 - `state:ready-for-refinement`
 - `state:ready-for-development`
 - `state:ready-for-testing`
 - `state:ready-for-review`
+- `state:ready-for-documentation`
 - `state:ready-for-product-validation`
 - `state:ready-for-cpo-approval`
 - `state:ready-for-merge`
@@ -52,6 +62,7 @@ Labels:
 - `state:blocked`
 - `agent:po`
 - `agent:developer`
+- `agent:refactor`
 - `agent:tester`
 - `agent:reviewer`
 - `agent:documentation`
@@ -78,12 +89,21 @@ De GitHub Action reageert op:
 | Huidige state | Event | Volgende actie |
 | --- | --- | --- |
 | Geen state + feature issue | Issue geopend | Zet `state:feature-proposed`; vraag PO refinement |
+| Geen state + refactor issue | Issue geopend | Zet `state:refactor-proposed`; vraag baseline |
+| `state:refactor-proposed` | Scope en motivatie aanwezig | Start Tester Agent voor baseline |
+| `state:ready-for-refactor-baseline` | Baseline-opdracht aanwezig | Start Tester Agent |
+| `state:ready-for-refactoring` | Baseline verklaard | Start Refactor Agent |
+| `state:ready-for-refactor-testing` | Refactor report aanwezig | Start Tester Agent voor regressiecontrole |
+| `state:ready-for-refactor-review` | Regressierapport non-blocking | Start Reviewer Agent |
+| `state:ready-for-refactor-documentation` | Review non-blocking | Start Documentation Agent |
+| `state:ready-for-refactor-approval` | Alle refactorartefacten aanwezig | Vraag Bob om approval |
 | `state:feature-proposed` | Orchestration actief | Start PO Agent |
 | `state:ready-for-refinement` | PO handoff aanwezig | Start PO Agent refinement |
 | `state:ready-for-development` | Acceptatiecriteria aanwezig | Start Developer Agent |
 | `state:ready-for-testing` | PR aanwezig en CI groen | Start Tester Agent |
 | `state:ready-for-review` | Test report non-blocking | Start Reviewer Agent |
-| `state:ready-for-product-validation` | Review non-blocking | Start PO Agent validation |
+| `state:ready-for-documentation` | Review non-blocking | Start Documentation Agent |
+| `state:ready-for-product-validation` | Documentatie-impact afgerond | Start PO Agent validation |
 | `state:ready-for-cpo-approval` | Samenvatting aanwezig | Vraag Bob om approval |
 | `state:ready-for-merge` | `APPROVE FEATURE` comment + CI groen | Merge mag worden aangevraagd |
 | `state:done` | Geen | Geen actie |
@@ -99,6 +119,9 @@ De GitHub Action reageert op:
 - Merge gebeurt alleen na expliciete menselijke approval.
 - Geen automatische merge wanneer `state:blocked` aanwezig is.
 - Elke agentoverdracht moet een Dev Summary bevatten.
+- Productvalidatie start pas na een vastgelegde documentatie-impactuitkomst.
+- Refactorwerk vereist onafhankelijke Tester Agent-baselines voor en na de wijziging.
+- Refactorwerk mag geen feature, bugfix of publieke contractwijziging verbergen.
 
 ## Dry-Run Gedrag
 
@@ -114,7 +137,7 @@ In dry-run mode:
 
 Budget control is apart vastgelegd als shared skill:
 
-- `ai-agents/skills/budget-control.md`
+- `.agents/skills/budget-control/SKILL.md`
 
 Die skill bepaalt:
 

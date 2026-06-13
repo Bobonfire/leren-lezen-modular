@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title description">
+  <title id="title">Leren Lezen - C4-componentdiagram</title>
+  <desc id="description">De speler gebruikt de browserapp. Binnen de browserapp werken navigatie, spelmodi, kernlogica, gebruikersinterface en speldata samen. De kernlogica gebruikt browseropslag en browser-spraak.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#35546b"/>
+    </marker>
+    <style>
+      .title { font: 700 28px Arial, sans-serif; fill: #17324d; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #526777; }
+      .name { font: 700 17px Arial, sans-serif; fill: #17324d; }
+      .name-inverse { font: 700 17px Arial, sans-serif; fill: #ffffff; }
+      .type { font: 700 12px Arial, sans-serif; fill: #2a6f97; }
+      .type-inverse { font: 700 12px Arial, sans-serif; fill: #d9f0f2; }
+      .body { font: 400 13px Arial, sans-serif; fill: #3d5363; }
+      .body-inverse { font: 400 13px Arial, sans-serif; fill: #ffffff; }
+      .relation { font: 600 12px Arial, sans-serif; fill: #35546b; }
+      .component { fill: #eaf4f4; stroke: #2a6f97; stroke-width: 2; }
+      .external { fill: #2a6f97; stroke: #164d6b; stroke-width: 2; }
+      .boundary { fill: #f8fbfc; stroke: #468faf; stroke-width: 3; }
+      .line { fill: none; stroke: #35546b; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1400" height="900" fill="#ffffff"/>
+  <text x="55" y="55" class="title">Leren Lezen - opzet van het spel</text>
+  <text x="55" y="82" class="subtitle">C4-componentdiagram | bronmodel: workspace.dsl</text>
+
+  <g aria-label="Speler">
+    <circle cx="115" cy="194" r="34" fill="#084c61"/>
+    <path d="M68 275 C70 225,160 225,162 275 Z" fill="#084c61"/>
+    <text x="115" y="302" text-anchor="middle" class="name">Speler</text>
+    <text x="115" y="322" text-anchor="middle" class="body">Kind dat oefeningen speelt</text>
+  </g>
+
+  <rect x="250" y="115" width="900" height="650" rx="6" class="boundary"/>
+  <text x="280" y="155" class="name">Browserapp</text>
+  <text x="280" y="176" class="type">[CONTAINER: HTML, CSS EN JAVASCRIPT ES-MODULES]</text>
+
+  <g aria-label="Navigatie en opstart">
+    <rect x="310" y="220" width="300" height="125" rx="5" class="component"/>
+    <text x="330" y="252" class="name">Navigatie en opstart</text>
+    <text x="330" y="274" class="type">[COMPONENT: main.js, router.js]</text>
+    <text x="330" y="303" class="body">Start de app en wisselt tussen</text>
+    <text x="330" y="323" class="body">het startscherm en de spelmodi.</text>
+  </g>
+
+  <g aria-label="Spelmodi">
+    <rect x="790" y="220" width="300" height="125" rx="5" class="component"/>
+    <text x="810" y="252" class="name">Spelmodi</text>
+    <text x="810" y="274" class="type">[COMPONENT: modes/*.js]</text>
+    <text x="810" y="303" class="body">Emoji, CVC, klok en rekenen.</text>
+  </g>
+
+  <g aria-label="Kernlogica">
+    <rect x="550" y="430" width="300" height="125" rx="5" class="component"/>
+    <text x="570" y="462" class="name">Kernlogica</text>
+    <text x="570" y="484" class="type">[COMPONENT: core/*.js]</text>
+    <text x="570" y="513" class="body">State, beloningen, selectie,</text>
+    <text x="570" y="533" class="body">timers, opslag en spraak.</text>
+  </g>
+
+  <g aria-label="Gebruikersinterface">
+    <rect x="310" y="605" width="300" height="110" rx="5" class="component"/>
+    <text x="330" y="637" class="name">Gebruikersinterface</text>
+    <text x="330" y="659" class="type">[COMPONENT: ui/*.js]</text>
+    <text x="330" y="688" class="body">DOM, overlays, confetti en prijzenkast.</text>
+  </g>
+
+  <g aria-label="Speldata">
+    <rect x="790" y="605" width="300" height="110" rx="5" class="component"/>
+    <text x="810" y="637" class="name">Speldata</text>
+    <text x="810" y="659" class="type">[COMPONENT: data/*.js]</text>
+    <text x="810" y="688" class="body">Woorden, klokuren en rekenopgaven.</text>
+  </g>
+
+  <g aria-label="Browseropslag">
+    <rect x="1190" y="385" width="170" height="105" rx="5" class="external"/>
+    <text x="1275" y="417" text-anchor="middle" class="name-inverse">Browseropslag</text>
+    <text x="1275" y="439" text-anchor="middle" class="type-inverse">[SOFTWARE SYSTEM]</text>
+    <text x="1275" y="468" text-anchor="middle" class="body-inverse">localStorage</text>
+  </g>
+
+  <g aria-label="Browser-spraak">
+    <rect x="1190" y="545" width="170" height="105" rx="5" class="external"/>
+    <text x="1275" y="577" text-anchor="middle" class="name-inverse">Browser-spraak</text>
+    <text x="1275" y="599" text-anchor="middle" class="type-inverse">[SOFTWARE SYSTEM]</text>
+    <text x="1275" y="628" text-anchor="middle" class="body-inverse">Web Speech API</text>
+  </g>
+
+  <path d="M165 235 L305 270" class="line"/>
+  <text x="188" y="232" class="relation">speelt oefeningen</text>
+
+  <path d="M610 282 L785 282" class="line"/>
+  <text x="650" y="266" class="relation">start modus</text>
+
+  <path d="M900 345 L765 426" class="line"/>
+  <text x="825" y="378" class="relation">gebruikt</text>
+
+  <path d="M835 345 L875 380 L875 580 L615 640" class="line"/>
+  <text x="887" y="480" class="relation">rendert via</text>
+
+  <path d="M940 345 L940 600" class="line"/>
+  <text x="952" y="480" class="relation">leest</text>
+
+  <path d="M430 345 L445 600" class="line"/>
+  <text x="328" y="480" class="relation">werkt UI bij</text>
+
+  <path d="M850 472 L1185 435" class="line"/>
+  <text x="970" y="435" class="relation">bewaart voortgang</text>
+
+  <path d="M850 520 L1185 590" class="line"/>
+  <text x="968" y="575" class="relation">spreekt feedback uit</text>
+
+  <text x="55" y="850" class="subtitle">Niveau: componenten binnen de Leren Lezen browserapp. Externe vakken zijn browserdiensten.</text>
+</svg>

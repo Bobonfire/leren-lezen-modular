@@ -27,15 +27,17 @@ jobs:
         shell: bash
         run: |
           test -f AGENTS.md
-          test -d ai-agents/skills
+          test -f .codex/config.toml
+          test -d .codex/agents
+          test -d .agents/skills
           test -d ai-agents/tools
-          test -f ai-agents/skills/budget-control.md
-          test -f ai-agents/agents/po-agent.md
-          test -f ai-agents/agents/developer-agent.md
-          test -f ai-agents/agents/tester-agent.md
-          test -f ai-agents/agents/code-reviewer-agent.md
-          test -f ai-agents/agents/documentation-agent.md
-          test -f ai-agents/agents/orchestrator-agent.md
+          test -f .codex/agents/orchestrator.toml
+          test -f .codex/agents/product_owner.toml
+          test -f .codex/agents/developer.toml
+          test -f .codex/agents/tester.toml
+          test -f .codex/agents/reviewer.toml
+          test -f .codex/agents/documentation.toml
+          test -f .codex/agents/refactor.toml
           test -f ai-agents/workflows/github-orchestration-workflow.md
           test -f .github/workflows/agent-orchestrator.yml
           test -f .github/ISSUE_TEMPLATE/feature.yml
@@ -46,7 +48,18 @@ jobs:
         run: |
           find src -name "*.js" -print0 | xargs -0 -n1 node --check
           node --check scripts/smoke-test.mjs
+          node --check scripts/app-interaction-test.mjs
+          node --check scripts/build-browser-bundle.mjs
           node --check scripts/agent-orchestrator.mjs
+          node --check scripts/validate-agent-config.mjs
+
+      - name: Validate browser bundle
+        shell: bash
+        run: node scripts/build-browser-bundle.mjs --check
+
+      - name: Validate Codex agents and skills
+        shell: bash
+        run: node scripts/validate-agent-config.mjs
 
       - name: Check patch whitespace
         shell: bash
@@ -59,4 +72,6 @@ jobs:
 
       - name: Run smoke test
         shell: bash
-        run: node scripts/smoke-test.mjs
+        run: |
+          node scripts/smoke-test.mjs
+          node scripts/app-interaction-test.mjs
