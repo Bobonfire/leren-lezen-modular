@@ -313,9 +313,29 @@ export function detectStaleBranch({ event, eventName, existingPullRequests }) {
   );
 }
 
+export function canPublishPlan({
+  event,
+  eventName,
+  mode,
+  repository,
+  actor,
+}) {
+  if (mode !== "mutate") return false;
+  if (!["pull_request", "pull_request_review"].includes(eventName)) return true;
+
+  const pullRequest = event.pull_request;
+  const dependabot = "dependabot[bot]";
+  return Boolean(
+    repository
+    && pullRequest?.head?.repo?.full_name === repository
+    && pullRequest.user?.login !== dependabot
+    && actor !== dependabot,
+  );
+}
+
 function getWorkItem(payload) {
-  return payload.issue
-    || payload.pull_request
+  return payload.pull_request
+    || payload.issue
     || payload.workflow_run?.pull_requests?.[0]
     || {};
 }
@@ -535,7 +555,7 @@ async function githubRequest(apiPath, { method = "GET", body } = {}) {
   return response.json();
 }
 
-function writeSummary(plan, mode, eventName) {
+function writeSummary(plan, mode, eventName, publicationAllowed) {
   const summary = [
     "# Agent Orchestrator",
     "",
@@ -547,6 +567,7 @@ function writeSummary(plan, mode, eventName) {
     `Commit: ${plan.sha || "unknown"}`,
     `Approval detected: ${plan.approvalDetected ? "yes" : "no"}`,
     `Branch guard: ${plan.staleBranch ? "blocked" : "pass"}`,
+    `GitHub mutation: ${publicationAllowed ? "allowed" : "skipped"}`,
     "",
     "## Next action",
     "",
@@ -581,11 +602,18 @@ async function main() {
   event = await hydrateEvent(eventName, event);
   const existingPullRequests = await loadExistingPullRequests(eventName, event);
   const plan = buildPlan({ event, eventName, existingPullRequests });
+  const publicationAllowed = canPublishPlan({
+    event,
+    eventName,
+    mode,
+    repository: process.env.GITHUB_REPOSITORY,
+    actor: process.env.GITHUB_ACTOR,
+  });
 
-  if (mode === "mutate" && plan.shouldPublish) {
+  if (publicationAllowed && plan.shouldPublish) {
     await publishPlan(plan, eventName);
   }
-  writeSummary(plan, mode, eventName);
+  writeSummary(plan, mode, eventName, publicationAllowed);
 
   if (plan.staleBranch) {
     process.exitCode = 2;
@@ -594,14 +622,17 @@ async function main() {
 
 async function hydrateEvent(eventName, event) {
   if (
-    eventName !== "workflow_run"
-    || !process.env.GITHUB_REPOSITORY
+    !process.env.GITHUB_REPOSITORY
     || !process.env.GITHUB_TOKEN
   ) {
     return event;
   }
 
-  const number = event.workflow_run?.pull_requests?.[0]?.number;
+  const number = eventName === "workflow_run"
+    ? event.workflow_run?.pull_requests?.[0]?.number
+    : eventName === "issue_comment" && event.issue?.pull_request
+      ? event.issue.number
+      : null;
   if (!number) return event;
 
   const pullRequest = await githubRequest(

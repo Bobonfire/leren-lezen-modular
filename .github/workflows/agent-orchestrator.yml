@@ -62,7 +62,7 @@ jobs:
       - name: Route workflow and update GitHub state
         id: orchestrator
         env:
-          AGENT_ORCHESTRATOR_MODE: mutate
+          AGENT_ORCHESTRATOR_MODE: ${{ (github.event_name == 'pull_request' || github.event_name == 'pull_request_review') && (github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login == 'dependabot[bot]') && 'dry-run' || 'mutate' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           GITHUB_TOKEN: ${{ github.token }}

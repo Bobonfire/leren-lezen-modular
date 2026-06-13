@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   advanceState,
   buildPlan,
+  canPublishPlan,
   determineRoute,
 } from "./agent-orchestrator.mjs";
 
@@ -63,6 +64,14 @@ const approvalPlan = buildPlan({
     issue: {
       number: 23,
       title: "Fix navigation",
+      pull_request: { url: "https://api.github.com/repos/example/repo/pulls/23" },
+    },
+    pull_request: {
+      number: 23,
+      title: "Fix navigation",
+      state: "open",
+      draft: false,
+      head: { sha: "approval123" },
       labels: [{ name: "route:fast" }, { name: "state:fast-approval" }],
     },
     comment: {
@@ -73,6 +82,7 @@ const approvalPlan = buildPlan({
   eventName: "issue_comment",
 });
 assert.equal(approvalPlan.state, "state:ready-for-merge");
+assert.equal(approvalPlan.sha, "approval123");
 
 const unauthorizedApprovalPlan = buildPlan({
   event: {
@@ -347,5 +357,43 @@ const stalePlan = buildPlan({
 });
 assert.equal(stalePlan.state, "state:blocked");
 assert.equal(stalePlan.staleBranch, true);
+
+const trustedPullRequest = {
+  pull_request: {
+    user: { login: "Bobonfire" },
+    head: { repo: { full_name: "Bobonfire/leren-lezen-modular" } },
+  },
+};
+assert.equal(canPublishPlan({
+  event: trustedPullRequest,
+  eventName: "pull_request",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "Bobonfire",
+}), true);
+assert.equal(canPublishPlan({
+  event: {
+    pull_request: {
+      user: { login: "external-user" },
+      head: { repo: { full_name: "external-user/leren-lezen-modular" } },
+    },
+  },
+  eventName: "pull_request",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "external-user",
+}), false);
+assert.equal(canPublishPlan({
+  event: {
+    pull_request: {
+      user: { login: "dependabot[bot]" },
+      head: { repo: { full_name: "Bobonfire/leren-lezen-modular" } },
+    },
+  },
+  eventName: "pull_request",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "dependabot[bot]",
+}), false);
 
 console.log("Agent orchestrator tests passed.");

@@ -88,6 +88,8 @@ handmatige runs en pushes naar niet-hoofdbranches.
 
 Een gesloten of gemergede PR gaat naar `state:done`. Een dismissed review maakt
 Reviewerbewijs ongeldig en zet een reviewklare PR terug naar verification.
+Comments op een PR worden eerst gehydrateerd naar de actuele PR, zodat route,
+labels en head-SHA ook bij finale approval exact blijven.
 
 Push-events controleren of een branch al aan een gemergede of gesloten PR was
 gekoppeld. Zo'n branch wordt `state:blocked`; delivery moet opnieuw starten op
@@ -114,6 +116,9 @@ De orchestrationjob gebruikt:
 - `checks: read`;
 - `issues: write`;
 - `pull-requests: write`.
+
+Voor fork- en Dependabot-PR's draait de job read-only in dry-runmodus. De
+workflowexpressie en de runtimeguard blokkeren daar label- en commentmutaties.
 
 Reviewer- en Documentation-publicatie gebruiken aparte skills en alleen de
 kleinst benodigde write-scope. Geen enkele agent mag zelfstandig mergen.
