@@ -3,6 +3,7 @@ description: Vraag een nieuwe functie of verbetering aan.
 title: "[Feature]: "
 labels:
   - feature
+  - route:full
 body:
   - type: markdown
     attributes:
@@ -43,3 +44,13 @@ body:
     attributes:
       label: Extra context
       description: Voeg screenshots, links of opmerkingen toe wanneer relevant.
+  - type: checkboxes
+    id: risk
+    attributes:
+      label: Impactsignalen
+      description: Markeer alle relevante Full Delivery-signalen.
+      options:
+        - label: Security, privacy of persoonsgegevens
+        - label: Nieuwe dependency of externe service
+        - label: Opslag-, data- of migratiewijziging
+        - label: Architectuur- of brede modulewijziging

@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Documentation Publishing"
+  short_description: "Publiceer documentatie-impact op GitHub"
+  default_prompt: "Use $github-documentation-publishing to publish documentation impact."
