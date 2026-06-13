@@ -29,13 +29,11 @@ Beschrijf kort wat deze PR wijzigt en waarom.
 
 Beschrijf uitgevoerde checks:
 
-- 
+-
 
 ## Risico's
 
 Noem bekende risico's, beperkingen of vervolgwerk:
-
-- 
 
 ## Documentatie-impact
 

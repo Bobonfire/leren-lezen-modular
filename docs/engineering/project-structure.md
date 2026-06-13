@@ -175,9 +175,8 @@ docs/
 
 ## Structuurupdate: statische root-entrypoint en smoke-test
 
-- `index.html` is de root-entrypoint voor statische hosting vanaf de repository-root.
-- `public/index.html` blijft beschikbaar als zelfstandig public-folder entrypoint.
-- Beide entrypoints laden `public/app.js`, zodat de app ook bij rechtstreeks lokaal openen werkt.
+- `index.html` is de root-entrypoint voor statische hosting vanaf de repository-root en laadt `public/styles.css` plus `public/app.js`.
+- `public/index.html` blijft beschikbaar als zelfstandig public-folder entrypoint en laadt `./styles.css` plus `./app.js`.
+- `scripts/smoke-test.mjs` controleert zonder extra dependencies of de entrypoints, assetpaden, primaire knoppen en responsive CSS-guards aanwezig zijn.
 - `scripts/build-browser-bundle.mjs` genereert deze dependencyvrije bundle uit de modules onder `src/`.
-- `scripts/smoke-test.mjs` controleert entrypoints, assetpaden, primaire knoppen en responsive CSS-guards.
 - `scripts/app-interaction-test.mjs` controleert dat alle vier homeknoppen een zichtbaar spel mounten.
