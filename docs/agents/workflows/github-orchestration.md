@@ -118,7 +118,8 @@ De orchestrationjob gebruikt:
 - `pull-requests: write`.
 
 Voor fork- en Dependabot-PR's draait de job read-only in dry-runmodus. De
-workflowexpressie en de runtimeguard blokkeren daar label- en commentmutaties.
+workflowexpressie begrenst directe PR-events; de runtimeguard controleert ook
+gehydrateerde comments op zulke PR's en blokkeert label- en commentmutaties.
 
 Reviewer- en Documentation-publicatie gebruiken aparte skills en alleen de
 kleinst benodigde write-scope. Geen enkele agent mag zelfstandig mergen.

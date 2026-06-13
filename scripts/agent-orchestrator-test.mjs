@@ -395,5 +395,24 @@ assert.equal(canPublishPlan({
   repository: "Bobonfire/leren-lezen-modular",
   actor: "dependabot[bot]",
 }), false);
+assert.equal(canPublishPlan({
+  event: trustedPullRequest,
+  eventName: "issue_comment",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "Bobonfire",
+}), true);
+assert.equal(canPublishPlan({
+  event: {
+    pull_request: {
+      user: { login: "external-user" },
+      head: { repo: { full_name: "external-user/leren-lezen-modular" } },
+    },
+  },
+  eventName: "issue_comment",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "external-user",
+}), false);
 
 console.log("Agent orchestrator tests passed.");

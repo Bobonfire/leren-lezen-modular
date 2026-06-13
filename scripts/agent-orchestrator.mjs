@@ -321,7 +321,9 @@ export function canPublishPlan({
   actor,
 }) {
   if (mode !== "mutate") return false;
-  if (!["pull_request", "pull_request_review"].includes(eventName)) return true;
+  const pullRequestScoped = ["pull_request", "pull_request_review", "issue_comment"]
+    .includes(eventName) && event.pull_request;
+  if (!pullRequestScoped) return true;
 
   const pullRequest = event.pull_request;
   const dependabot = "dependabot[bot]";
