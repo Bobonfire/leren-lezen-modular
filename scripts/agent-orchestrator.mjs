@@ -74,7 +74,12 @@ export function buildPlan({
     approvalDetected,
     staleBranch,
   });
-  const next = determineNext({ state, route, approvalDetected });
+  const approvalReceived = approvalDetected || state === "state:ready-for-merge";
+  const next = determineNext({
+    state,
+    route,
+    approvalDetected: approvalReceived,
+  });
   const sha = getSha(event, workItem);
   const number = workItem.number || event.workflow_run?.pull_requests?.[0]?.number || null;
 
@@ -84,7 +89,7 @@ export function buildPlan({
     nextAction: next.action,
     nextAgents: next.agents,
     labels: buildDesiredLabels(route, state, next.agents, evidenceLabels),
-    approvalDetected,
+    approvalDetected: approvalReceived,
     staleBranch,
     shouldPublish: workflowRunMatchesHead,
     sha,
@@ -96,7 +101,7 @@ export function buildPlan({
       sha,
       next,
       evidenceLabels,
-      approvalDetected,
+      approvalDetected: approvalReceived,
       staleBranch,
     }),
   };
@@ -321,7 +326,12 @@ export function canPublishPlan({
   actor,
 }) {
   if (mode !== "mutate") return false;
-  const pullRequestScoped = ["pull_request", "pull_request_review", "issue_comment"]
+  const pullRequestScoped = [
+    "pull_request",
+    "pull_request_review",
+    "issue_comment",
+    "workflow_run",
+  ]
     .includes(eventName) && event.pull_request;
   if (!pullRequestScoped) return true;
 

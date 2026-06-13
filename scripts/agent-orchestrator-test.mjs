@@ -84,6 +84,30 @@ const approvalPlan = buildPlan({
 assert.equal(approvalPlan.state, "state:ready-for-merge");
 assert.equal(approvalPlan.sha, "approval123");
 
+const persistedApprovalPlan = buildPlan({
+  event: {
+    action: "labeled",
+    pull_request: {
+      number: 23,
+      title: "Approved fix",
+      state: "open",
+      draft: false,
+      head: { sha: "approval123" },
+      labels: [
+        { name: "route:fast" },
+        { name: "state:ready-for-merge" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(persistedApprovalPlan.state, "state:ready-for-merge");
+assert.equal(persistedApprovalPlan.approvalDetected, true);
+assert.equal(
+  persistedApprovalPlan.workflowComment.includes("- Human approval: `received`"),
+  true,
+);
+
 const unauthorizedApprovalPlan = buildPlan({
   event: {
     issue: {
@@ -413,6 +437,25 @@ assert.equal(canPublishPlan({
   mode: "mutate",
   repository: "Bobonfire/leren-lezen-modular",
   actor: "external-user",
+}), false);
+assert.equal(canPublishPlan({
+  event: trustedPullRequest,
+  eventName: "workflow_run",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "github-actions[bot]",
+}), true);
+assert.equal(canPublishPlan({
+  event: {
+    pull_request: {
+      user: { login: "external-user" },
+      head: { repo: { full_name: "external-user/leren-lezen-modular" } },
+    },
+  },
+  eventName: "workflow_run",
+  mode: "mutate",
+  repository: "Bobonfire/leren-lezen-modular",
+  actor: "github-actions[bot]",
 }), false);
 
 console.log("Agent orchestrator tests passed.");
