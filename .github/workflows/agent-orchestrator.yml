@@ -1,9 +1,10 @@
 name: Agent Orchestrator
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 on:
+  push:
+    branches-ignore:
+      - main
+      - dev
   issues:
     types:
       - opened
@@ -17,8 +18,13 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - closed
       - labeled
       - unlabeled
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
   issue_comment:
     types:
       - created
@@ -33,26 +39,31 @@ permissions:
   actions: read
   checks: read
   contents: read
-  issues: read
-  pull-requests: read
+  issues: write
+  pull-requests: write
 
 jobs:
-  dry-run:
-    name: Determine next agent step
+  orchestrate:
+    name: Route and publish agent workflow state
     runs-on: ubuntu-latest
+    concurrency:
+      group: agent-orchestrator-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
 
-      - name: Run orchestrator dry-run
+      - name: Route workflow and update GitHub state
+        id: orchestrator
         env:
-          AGENT_ORCHESTRATOR_MODE: dry-run
+          AGENT_ORCHESTRATOR_MODE: ${{ (github.event_name == 'pull_request' || github.event_name == 'pull_request_review') && (github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login == 'dependabot[bot]') && 'dry-run' || 'mutate' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/agent-orchestrator.mjs

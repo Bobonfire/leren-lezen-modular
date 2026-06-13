@@ -19,7 +19,7 @@ Helpt een agent een taak correct en met minimale zoekkosten uit te voeren:
 - architectuur- en besliscontext die uitvoering beïnvloedt;
 - commando's en controles die in deze repository bestaan.
 
-Startpunt: `docs/agents/AGENT_HANDBOOK.md`.
+Startpunt: `docs/agents/README.md`.
 
 ### Mensgerichte documentatie
 

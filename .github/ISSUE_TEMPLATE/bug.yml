@@ -1,0 +1,46 @@
+name: Bug
+description: Meld een regressie of defect in bestaand gedrag.
+title: "[Bug]: "
+labels:
+  - bug
+  - route:fast
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Werkelijk gedrag
+      description: Wat gebeurt er nu?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Verwacht gedrag
+      description: Welk bestaand gedrag moet worden hersteld?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproductiestappen
+      placeholder: |
+        1. Open ...
+        2. Klik ...
+        3. Zie ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bewijs
+      description: Voeg screenshots, foutmeldingen of relevante links toe.
+  - type: checkboxes
+    id: escalation
+    attributes:
+      label: Opschalen naar Full Delivery
+      description: Deze signalen blokkeren Fast Track.
+      options:
+        - label: Productgedrag of gewenste uitkomst is onduidelijk
+        - label: Security, privacy of persoonsgegevens
+        - label: Dependency-, opslag-, data- of architectuurwijziging
+        - label: Brede refactor of hoge regressie-impact

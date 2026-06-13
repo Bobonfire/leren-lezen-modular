@@ -8,6 +8,9 @@ We willen dit project toegankelijk en eenvoudig houden, zodat iedereen kan meehe
 ### 1. Issues melden
 - Gebruik **GitHub Issues** om bugs te rapporteren of nieuwe ideeën voor features voor te stellen.
 - Geef duidelijke beschrijvingen en indien mogelijk stappen om een bug te reproduceren.
+- Gebruik het bugtemplate voor `route:fast` en het featuretemplate voor
+  `route:full`. De Orchestrator kan de route verhogen wanneer risico, scope of
+  productonduidelijkheid daarom vraagt.
 
 ### 2. Nieuwe features of fixes toevoegen
 1. Fork deze repository
@@ -24,6 +27,8 @@ We willen dit project toegankelijk en eenvoudig houden, zodat iedereen kan meehe
    git push origin feature/mijn-feature
    ```
 5. Open een Pull Request naar de `main` branch.
+6. Controleer voor het openen dat de branch niet al aan een gesloten of gemergede
+   PR gekoppeld is; maak in dat geval een verse branch.
 
 ### 3. Code stijl
 - Gebruik duidelijke en leesbare **JavaScript** code.
@@ -40,5 +45,8 @@ We willen dit project toegankelijk en eenvoudig houden, zodat iedereen kan meehe
 - [ ] Geen console errors
 - [ ] Documentatie (indien nodig) bijgewerkt
 - [ ] Duidelijke beschrijving in de Pull Request
+- [ ] Tester en Reviewer hebben dezelfde commit-SHA beoordeeld
+- [ ] Vereiste CI-, review- en documentatie-evidence is groen
+- [ ] Finale approval en merge worden door een human uitgevoerd
 
 Bedankt dat je helpt om **Leren Lezen** beter te maken!
