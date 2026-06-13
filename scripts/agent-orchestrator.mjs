@@ -171,6 +171,15 @@ export function determineState({
       : `state:${route}-verification`;
   }
 
+  if (
+    eventName === "pull_request"
+    && ["ready_for_review", "reopened"].includes(eventAction)
+  ) {
+    return workItem.draft
+      ? `state:${route}-development`
+      : `state:${route}-verification`;
+  }
+
   if (eventName === "pull_request_review" && eventAction === "dismissed") {
     return workItem.draft
       ? `state:${route}-development`

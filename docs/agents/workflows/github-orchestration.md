@@ -88,6 +88,8 @@ handmatige runs en pushes naar niet-hoofdbranches.
 
 Een gesloten of gemergede PR gaat naar `state:done`. Een dismissed review maakt
 Reviewerbewijs ongeldig en zet een reviewklare PR terug naar verification.
+`ready_for_review` en `reopened` bepalen eerst opnieuw development of
+verification en negeren daarbij verouderde development- of terminale labels.
 Comments op een PR worden eerst gehydrateerd naar de actuele PR, zodat route,
 labels en head-SHA ook bij finale approval exact blijven.
 `state:ready-for-merge` bewaart dat menselijke approval al is ontvangen.

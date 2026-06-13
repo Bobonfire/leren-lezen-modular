@@ -231,6 +231,46 @@ const synchronizedDraftPull = buildPlan({
 assert.equal(synchronizedDraftPull.state, "state:full-development");
 assert.deepEqual(synchronizedDraftPull.nextAgents, ["developer"]);
 
+const readyForReviewPull = buildPlan({
+  event: {
+    action: "ready_for_review",
+    pull_request: {
+      number: 24,
+      title: "Feature ready for review",
+      state: "open",
+      draft: false,
+      head: { sha: "ready123" },
+      labels: [
+        { name: "route:full" },
+        { name: "state:full-development" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(readyForReviewPull.state, "state:full-verification");
+assert.deepEqual(readyForReviewPull.nextAgents, ["tester", "reviewer"]);
+
+const reopenedPull = buildPlan({
+  event: {
+    action: "reopened",
+    pull_request: {
+      number: 24,
+      title: "Reopened fix",
+      state: "open",
+      draft: false,
+      head: { sha: "reopened123" },
+      labels: [
+        { name: "route:fast" },
+        { name: "state:done" },
+      ],
+    },
+  },
+  eventName: "pull_request",
+});
+assert.equal(reopenedPull.state, "state:fast-verification");
+assert.deepEqual(reopenedPull.nextAgents, ["tester", "reviewer"]);
+
 const approvedReview = buildPlan({
   event: {
     action: "submitted",
