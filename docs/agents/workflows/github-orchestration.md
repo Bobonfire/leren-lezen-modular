@@ -80,6 +80,10 @@ approval of `state:ready-for-merge`.
 
 Verification gaat pas verder wanneer CI, Tester en Reviewer alle drie geldig
 bewijs voor exact dezelfde actuele PR-head-SHA hebben.
+Voor exact dezelfde PR-head-SHA voeren Tester en Reviewer samen hoogstens drie
+opeenvolgende review-/testcycli uit. Als die derde cyclus nog steeds geen
+overeenstemming of duidelijke non-blocking uitkomst oplevert, stopt de
+Orchestrator met nieuwe lussen en escaleert het resterende verschil naar Bob.
 
 ## Events
 
@@ -107,6 +111,8 @@ een verse branch vanaf actuele `main`.
 - Tester en Reviewer starten parallel op dezelfde PR-SHA;
 - schrijvende parallelle agents gebruiken aparte worktrees;
 - timeout krijgt één verkorte afrondprompt en maximaal één smallere herstart.
+- Voor dezelfde PR-SHA mogen Tester en Reviewer samen maximaal drie cycli
+  doorlopen; daarna volgt escalatie en geen nieuwe reviewlus.
 
 De GitHub Action routeert en publiceert status, maar start niet zelfstandig
 betaalde modelcalls. Agentstarts gebeuren vanuit een expliciet geautoriseerde

@@ -31,6 +31,10 @@ worden niet in dit document gedupliceerd.
 - Tester en Reviewer werken parallel op dezelfde stabiele PR-SHA.
 - Refactorwerk volgt aanvullend `refactoring.md`.
 - Decision Records zijn alleen verplicht bij betekenisvolle keuzes.
+Voor dezelfde PR-SHA voeren Tester en Reviewer samen hoogstens drie
+opeenvolgende verificatiecycli uit. Als na drie cycli nog geen overeenstemming
+of duidelijke non-blocking uitkomst bestaat, escaleert de Orchestrator naar Bob
+in plaats van opnieuw een lus te starten.
 
 ## Budget
 

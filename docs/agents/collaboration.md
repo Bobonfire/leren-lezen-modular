@@ -23,6 +23,10 @@ flowchart LR
 
 Tester en Reviewer werken parallel op dezelfde head-SHA. Nieuwe commits maken
 hun bewijs stale.
+Voor dezelfde PR-SHA doorlopen Tester en Reviewer samen hoogstens drie
+opeenvolgende verificatie- of reviewcycli. Als er daarna nog geen overeenstemming
+of duidelijke non-blocking uitkomst is, escaleert de Orchestrator naar Bob in
+plaats van een nieuwe lus te starten.
 
 ## Agentvergelijking
 

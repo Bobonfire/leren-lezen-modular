@@ -35,6 +35,10 @@ Tester en Reviewer starten tegelijk zodra:
 - de SHA gedurende de review niet verandert.
 
 Een nieuwe commit maakt beide resultaten stale en vereist nieuwe verificatie.
+Voor dezelfde PR-SHA voeren Tester en Reviewer samen hoogstens drie
+opeenvolgende verificatiecycli uit. Als na drie cycli nog geen overeenstemming
+of duidelijke non-blocking uitkomst bestaat, escaleert de Orchestrator naar Bob
+in plaats van opnieuw een lus te starten.
 
 ## Budget
 
